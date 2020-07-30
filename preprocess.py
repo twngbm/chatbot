@@ -1,33 +1,61 @@
 from ckiptagger import data_utils, construct_dictionary, WS, POS, NER
 import os
 import sys
-# Downloads to ./data.zip (2GB) and extracts to ./data/
-# data_utils.download_data_url("./") # iis-ckip
-# data_utils.download_data_gdown("./") # gdrive-ckip
-# To use GPU:
-#    1. Install tensorflow-gpu (see Installation)
-#    2. Set CUDA_VISIBLE_DEVICES environment variable, e.g. os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-#    3. Set disable_cuda=False, e.g. ws = WS("./data", disable_cuda=False)
+import struct
+import select
+import tensorflow as tf
+import time
 
-# # Load model with GPU
-# ws = WS("./data", disable_cuda=False)
-# pos = POS("./data", disable_cuda=False)
-# ner = NER("./data", disable_cuda=False)
 
+def create_msg(content):
+    return struct.pack("<I", len(content)) + content
+
+def get_message(fifo):
+    """Get a message from the named pipe."""
+    msg_size_bytes = os.read(fifo, 4)
+    msg_size = struct.unpack("<I", msg_size_bytes)[0]
+    msg_content = os.read(fifo, msg_size).decode("utf8")
+    return msg_content
+
+def init():
+    __PATH__=os.path.dirname(os.path.abspath(__file__))
+    try:
+        os.mkfifo(__PATH__+"/input.pipe")
+        os.mkfifo(__PATH__+"/output.pipe")
+    except:
+        pass
+    Ckip=ckip()
+    writer=os.open(__PATH__+"/output.pipe",os.O_WRONLY)
+    msg=create_msg("ACK".encode("utf8"))
+    os.write(writer,msg)
+    os.close(writer)
+    
+    return Ckip
+
+def run(Ckip):
+    __PATH__=os.path.dirname(os.path.abspath(__file__))
+    reader=os.open(__PATH__+"/input.pipe",os.O_RDONLY|os.O_NONBLOCK)
+    poll=select.poll()
+    poll.register(reader,select.POLLIN)
+    while True:
+        if (reader,select.POLLIN) in poll.poll(500):
+            msg=get_message(reader)
+        else:
+            time.sleep(0.5)
+            continue
+        keyword=Ckip.GetKeyword(msg)
+        msg=create_msg(str(keyword).encode("utf8"))
+        writer=os.open(__PATH__+"/output.pipe",
+                         os.O_WRONLY | os.O_NONBLOCK)
+        os.write(writer,msg)
+        os.close(writer)
 class ckip:
-    # To use CPU:
-    def __init__(self, sentence_list):
-        self.sentence_list = sentence_list
+    def __init__(self):
         self.ws = WS("./data")
         self.pos = POS("./data")
         self.ner = NER("./data")
-    # def print_word_pos_sentence(self,word_sentence, pos_sentence):
-    #     assert len(word_sentence) == len(pos_sentence)
-    #     for word, pos in zip(word_sentence, pos_sentence):
-    #         print(f"{word}({pos})", end="\u3000")
-    #     print()
-    #     return
-    def GetKeyword(self):
+
+    def GetKeyword(self,sentence):
 
         word_to_weight = {
             "網路": 1,
@@ -36,38 +64,22 @@ class ckip:
             "宿網": 2,
         }
         dictionary = construct_dictionary(word_to_weight)
-        # print(dictionary)
 
-        # sentence_list = [
-        #     "我的網路有問題",
-        #     "我的宿網路掛了",
-        # ]
         word_sentence_list = self.ws(
-            self.sentence_list,
-            # sentence_segmentation=True, # To consider delimiters
-            # segment_delimiter_set = {",", "。", ":", "?", "!", ";"}), # This is the defualt set of delimiters
-            # recommend_dictionary = dictionary1, # words in this dictionary are encouraged
-            coerce_dictionary = dictionary, # words in this dictionary are forced
+            [sentence],
+            coerce_dictionary = dictionary, 
         )
         pos_sentence_list = self.pos(word_sentence_list)
         entity_sentence_list = self.ner(word_sentence_list, pos_sentence_list)
-        # Release memory
-        #del self.ws
-        #del self.pos
-        #del self.ner
 
-        for i, sentence in enumerate(self.sentence_list):
-            # print()
-            # print(f"'{sentence}'")
-            # self.print_word_pos_sentence(word_sentence_list[i],  pos_sentence_list[i])
-            # print("Keyword:",end=" ")
-            # print(word_sentence_list[0])
+
+        for i, sentence in enumerate([sentence]):
+
             keyword = []
             for word in word_sentence_list[i]:
                 if word in word_to_weight:
-                    # print(word,end="******\n")
                     keyword.append(word)
             return keyword
-            print()
-            # for entity in sorted(entity_sentence_list[i]):
-            #     print(entity)
+if __name__ == "__main__":
+    Ckip=init()
+    run(Ckip)

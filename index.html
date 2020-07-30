@@ -11,7 +11,8 @@
        ws.close();
     });
     ws.onerror = function(event) {
-        location.reload();
+        console.log("error");
+        //location.reload();
     }
     ws.onmessage = function(event)  { 
         var message_received = event.data;
@@ -72,7 +73,7 @@
         padding: 10px;
         border-bottom: 1px solid black;
         overflow-y: scroll;
-        height: 300px;
+        height: 900px;
         font-size: 26px;
     }
     #chat_input_container {
