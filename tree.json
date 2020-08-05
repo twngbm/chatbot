@@ -1,0 +1,98 @@
+{
+    "root": {
+        "featureText": "What Wrong With You?",
+        "featureName": "Keyword",
+        "inputTrans": [
+            "CKIPParser"
+        ],
+        "featureKey": {
+            "\u7db2\u8def": {
+                "featureText": "Where is your location?",
+                "featureName": "Location",
+                "inputTrans": null,
+                "featureKey": {
+                    "\u5bbf\u820d": {
+                        "featureText": "Please Enter Your Student ID.",
+                        "featureName": "StudentID",
+                        "inputTrans": [
+                            "checkDormNetIDUsage"
+                        ],
+                        "featureKey": {
+                            "true": {
+                                "featureText": "You use too much.",
+                                "featureName": null,
+                                "inputTrans": null,
+                                "featureKey": null,
+                                "defaultAnswer": null
+                            },
+                            "false": {
+                                "featureText": "Please Check Your Socket and Connection",
+                                "featureName": "UserHWConnectionStatus",
+                                "inputTrans": null,
+                                "featureKey": {
+                                    "\u6b63\u5e38": {
+                                        "featureText": "Wait and Retry.",
+                                        "featureName": null,
+                                        "inputTrans": null,
+                                        "featureKey": null,
+                                        "defaultAnswer": null
+                                    },
+                                    "\u7570\u5e38": {
+                                        "featureText": "Plug the cable in.",
+                                        "featureName": null,
+                                        "inputTrans": null,
+                                        "featureKey": null,
+                                        "defaultAnswer": null
+                                    }
+                                },
+                                "defaultAnswer": {
+                                    "str": "StudentID Not Found"
+                                }
+                            }
+                        },
+                        "defaultAnswer": {
+                            "str": "StudentID Not Found"
+                        }
+                    },
+                    "\u5be6\u9a57\u5ba4": {
+                        "featureText": "Ask yourself.",
+                        "featureName": null,
+                        "inputTrans": null,
+                        "featureKey": null,
+                        "defaultAnswer": null
+                    }
+                },
+                "defaultAnswer": {
+                    "str": "Call 61010"
+                }
+            },
+            "\u6388\u6b0a\u8edf\u9ad4": {
+                "featureText": "Where is your location?",
+                "featureName": "Location",
+                "inputTrans": null,
+                "featureKey": {
+                    "\u6821\u5167": {
+                        "featureText": "You Should Have No Issue.",
+                        "featureName": null,
+                        "inputTrans": null,
+                        "featureKey": null,
+                        "defaultAnswer": null
+                    },
+                    "\u6821\u5916": {
+                        "featureText": "Use VPM.",
+                        "featureName": null,
+                        "inputTrans": null,
+                        "featureKey": null,
+                        "defaultAnswer": null
+                    }
+                },
+                "defaultAnswer": {
+                    "str": "\u8acb\u8f38\u5165\u6821\u5167\u6216\u6821\u5916"
+                }
+            }
+        },
+        "defaultAnswer": {
+            "function": "Google"
+        }
+    }
+}
