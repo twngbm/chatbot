@@ -3,7 +3,8 @@ import logging
 import time
 import os
 import sys
-from chatcore import chatbot
+#import chatcore as cc
+import chatcoreV2 as cc
 
 ###################################
 #connectionClient={}
@@ -16,14 +17,14 @@ WEBSOCKETPORT=8080
 class ChatServer(WebSocket):
     
     def handleMessage(self):
-        tS = time.time()        
+        #tS = time.time()        
         
         logging.info("Client {ip}:{port} Send Sentence : {sent}".format(ip=self.clientIP, port=self.clientPort,sent=self.data))
 
         result,connectedClient[(self.clientIP,self.clientPort)]=Chatbot.chat(self.data,connectedClient[(self.clientIP,self.clientPort)])
         
         self.sendMessage(str(result))
-        self.sendMessage(str(time.time()-tS))
+        #self.sendMessage(str(time.time()-tS))
 
     def handleConnected(self):
         self.clientIP = self.address[0]
@@ -70,7 +71,7 @@ def init():
                         datefmt="%Y-%m-%d %H:%M:%S")
     logging.critical("Chatbot Core Initinal")
     
-    Chatbot=chatbot()
+    Chatbot=cc.chatbot()
 
     logging.critical("Chatbot Core Initinal Done")
 

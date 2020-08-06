@@ -92,7 +92,6 @@ class Transformer(object):
         logging.critical("NER Loading")
         self.ner = NER(self.__PATH__+"/data")
         logging.critical("NER Loaded")
-
         logging.critical("Loading Solution Tree")
         with open(self.__PATH__+"/tree.json", "r") as treefile:
             #TODO:Load json file with boolean
@@ -106,6 +105,8 @@ class Transformer(object):
             "連線": 1,
             "宿舍": 1,
             "宿網": 2,
+            "授權軟體": 1,
+            "VPN": 1,
         }
         dictionary = construct_dictionary(word_to_weight)
 

@@ -1,42 +1,25 @@
 ########################
-#structure={"Key":{
-#    "featureText":"Text To Explain Feature",
-#    "featureName":"Feature Name",
-#    "inputTrans":["Input Transform Function Name",],
-#    "featureKey":{"Key":*structure,"Key2":*structure},
-#    "defaultAnswer":{"str":"Answer Text.","function":"Function Name"}}
-#}
-#example:
-#{"Network":{
-#    "featureName":"Location",
-#    "inputTrans":None,
-#    "featureKey":{"Dorm":dormPath,"Lab":labPath},
-#    "defaultAnswer":"Call 61010"},
-#"software":{...}
-#}
-#dormPath:{
-#    "featureName":"Student ID",
-#    "inputTrans":"checkUsage(studentID:str)->bool",
-#    "featureKey":{True:dormNetOveruse,False:dormNetDebug},
-#    "defaultAnswer":None
-#}
-#overusage:{
-#    "featureName":None,
-#    "inputTrans":None,
-#    "featureKey":{None:None},
-#    "defaultAnswer":"You use too much."
+#Node={"Key":{
+#    "featureText":["Text To Explain Feature",],
+#    "featureName":"Feature Name", #變數名稱
+#    "inputParser":["Input Transform Function Name",], #function name
+#    "featureKey":{"Key":*Node1,"Key2":*Node2},
+#    "defaultAnswer":{"str":"Answer Text.","function":"Function Name"},
+#    "ParentNode":*parentNode}
 #}
 ########################
 import json
 import os
 import logging
 import time
+global dormPath
 dormNetOveruse={
-    "featureText":"You use too much.",
+    "featureText":["You use too much."],
     "featureName":None,
     "inputTrans":None,
     "featureKey":None,
-    "defaultAnswer":None
+    "defaultAnswer":None,
+    "parentNode":dormPath
 }
 labPath={"featureText":"Ask yourself.",
     "featureName":None,

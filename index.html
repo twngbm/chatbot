@@ -1,138 +1,47 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html>
+
 <head>
-<title>Chat Bot</title>
-<meta charset="utf-8"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-<script>
-    var ws = new WebSocket("ws://140.116.72.242:8080");
-    // Close socket when window closes
-    $(window).on('beforeunload', function(){
-       ws.close();
-    });
-    ws.onerror = function(event) {
-        console.log("error");
-        //location.reload();
-    }
-    ws.onmessage = function(event)  { 
-        var message_received = event.data;
-		console.log(message_received);
-        chat_add_message(message_received, false);
-    };
-    // Add a message to the chat history
-    function chat_add_message(message, isUser) {
-        var class_suffix = isUser ? '_user' : '';
-        var html = '\
-        <div class="chat_line">\
-            <div class="chat_bubble'+class_suffix+'">\
-              <div class="chat_triangle'+class_suffix+'"></div>\
-                '+message+'\
-            </div>\
-        </div>\
-        ';
-        chat_add_html(html);
-    }
-    // Add HTML to the chat history
-    function chat_add_html(html) {
-        $("#chat_log").append(html);
-        chat_scrolldown();
-    }
-    // Scrolls the chat history to the bottom
-    function chat_scrolldown() {
-        $("#chat_log").animate({ scrollTop: $("#chat_log")[0].scrollHeight }, 500);
-    }
-    // If press ENTER, talk to chat and send message to server
-    $(function() {
-       $('#chat_input').on('keypress', function(event) {
-          if (event.which === 13 && $(this).val() != ""){
-             var message = $(this).val();
-             $(this).val("");
-             chat_add_message(message, true);
-             ws.send(message);
-          }
-       });
-    });
-</script>
-<style>
-    * {
-        box-sizing: border-box;
-        -moz-box-sizing: border-box;
-        -webkit-box-sizing: border-box;
-    }
-    body {
-        font-family: Helvetica;
-    }
-    #chat_container {
-        overflow: hidden;
-        border-radius: 15px;
-        border: 1px solid black;
-        margin: 40px 80px 0px 80px;
-    }
-    #chat_log {
-        background-color: #F3F76F;
-        padding: 10px;
-        border-bottom: 1px solid black;
-        overflow-y: scroll;
-        height: 900px;
-        font-size: 26px;
-    }
-    #chat_input_container {
-        padding: 10px;
-    }
-    #chat_input {
-        padding: 2px;
-        font-size: 18px;
-        width: 100%;
-    }
-    .chat_line {
-        overflow: hidden;
-        width: 100%;
-        margin: 2px 0 12px 0;
-    }
-    .chat_triangle, .chat_triangle_user {
-        position: absolute;
-        top: 0;
-        width: 0;
-        height: 0;
-        border-style: solid;
-        left: -18px;
-        border-width: 0 18px 13px 0;
-        border-color: transparent #ffffff transparent transparent;
-    }
-    .chat_triangle_user {
-        left: auto;
-        right: -18px;
-        border-width: 13px 18px 0 0;
-        border-color: #234b9b transparent transparent transparent;
-    }
-    .chat_bubble, .chat_bubble_user {
-        position: relative;
-        float: left;
-        background-color: #FFF;
-        margin-top: 10px;
-        line-height: 35px;
-        padding: 10px 25px 10px 25px;
-        margin-left: 20px;
-        font-size: 27px;
-    }
-    .chat_bubble_user {
-        float: right;
-        margin-left: 0px;
-        margin-right: 20px;
-        background-color: #234b9b;
-        color: #FFF;
-    }
-</style>
+
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<meta charset="UTF-8">
+	<title>Chat Bot UI</title>
+
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+
+	<link rel='stylesheet prefetch' href='https://fonts.googleapis.com/css?family=Open+Sans'>
+	<link rel='stylesheet prefetch' href='https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.3/jquery.mCustomScrollbar.min.css'>
+
+	<link rel="stylesheet" href="css/style.css">
+
 </head>
 
 <body>
-<div id="chat_container">
-    <div id="chat_log">
-    </div>
-    <div id="chat_input_container">
-        <div><input id="chat_input" /></div>
-    </div>
-</div>
+
+	<div class="chat">
+		<div class="chat-title">
+			<h1>技安</h1>
+			<h2>Bot</h2>
+			<figure class="avatar">
+				<img src="img/messageImage_1596638102086.jpg" /></figure>
+		</div>
+		<div class="messages">
+			<div class="messages-content">
+			</div>
+		</div>
+		<div class="message-box">
+			<textarea type="text" class="message-input" placeholder="Type message..."></textarea>
+			<button type="submit" class="message-submit">Send</button>
+		</div>
+
+	</div>
+	<div class="bg"></div>
+	<script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+	<script src='https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.3/jquery.mCustomScrollbar.concat.min.js'></script>
+
+	<script src="js/index.js"></script>
 
 </body>
+
 </html>
