@@ -18,8 +18,7 @@ dormNetOveruse={
     "featureName":None,
     "inputTrans":None,
     "featureKey":None,
-    "defaultAnswer":None,
-    "parentNode":dormPath
+    "defaultAnswer":None
 }
 labPath={"featureText":"Ask yourself.",
     "featureName":None,

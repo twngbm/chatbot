@@ -17,7 +17,7 @@ class chatbot(object):
     def __init__(self):
         self.__PATH__ = os.path.dirname(os.path.abspath(__file__))
         logging.critical("Loading Solution List")
-        with open(self.__PATH__+"/solution.json", "r") as f:
+        with open(self.__PATH__+"/solution.json", "r", encoding="utf-8") as f:
             self.solutionList = json.load(f)
         logging.critical("Solution List Loaded")
         self.transformer = Transformer()
@@ -54,25 +54,28 @@ class chatbot(object):
                     return self.__GetMessage__(hoshiiFeature, True), [currentSolutionList, knownInfo, hoshiiFeature]
 
             inputFeature = processedData
-            if  key not in inputFeature:
+            if key not in inputFeature:
                 unMatchSolution.append(solution)
 
         knownInfo[hoshiiFeature] = inputFeature
         for i in unMatchSolution:
             currentSolutionList.remove(i)
-        if currentSolutionList==[]:#TODO:如何區別使用者輸入錯誤與無答案?
-
+        for i in currentSolutionList:
+            print(i["Answer"])
+        if currentSolutionList == []:
             try:
-                errorMessage=self.__GetMessage__(hoshiiFeature,True)
+                errorMessage = self.__GetMessage__(hoshiiFeature, True)
             except:
-                errorMessage=self.MessageGeneator.handleUnable()
-            print(unMatchSolution)
-            return self.MessageGeneator.handleUnable(),[unMatchSolution,knownInfo,hoshiiFeature]
-        elif len(currentSolutionList)==1:
-            ans=currentSolutionList[0]["Answer"]
-            print(self.solutionList)
+                errorMessage = self.MessageGeneator.handleUnable()
+            print(errorMessage)
+            knownInfo.pop(hoshiiFeature)
+            return self.MessageGeneator.handleUnable(), [unMatchSolution, knownInfo, hoshiiFeature]
+
+        elif len(currentSolutionList) == 1:
+            ans = currentSolutionList[0]["Answer"]
+            # print(self.solutionList)
             knownInfo.pop("Keyword")
-            return ans+"\n"+self.__GetMessage__("Keyword"),[self.solutionList[:],knownInfo,"Keyword"]
+            return ans+"\n"+self.__GetMessage__("Keyword"), [self.solutionList[:], knownInfo, "Keyword"]
         nextHoshiiFeature = self.__findWantedKey__(
             currentSolutionList, knownInfo)
         return self.__GetMessage__(nextHoshiiFeature), [currentSolutionList, knownInfo, nextHoshiiFeature]
@@ -81,7 +84,7 @@ class chatbot(object):
         if "Keyword" not in knownInfo:
             return "Keyword"
         keyCount = {}
-        
+
         for solution in currentSolutionList:
             for key in solution["Feature"]:
                 try:
@@ -96,6 +99,7 @@ class chatbot(object):
                 break
             if k not in knownInfo:
                 mostWantedKey.append(k)
+        print(mostWantedKey)
         return random.choice(mostWantedKey)
 
     def __GetMessage__(self, featureName, exception=False):
@@ -105,45 +109,55 @@ class chatbot(object):
 class MessageGeneator(object):
     def __init__(self):
         pass
-    
+
     def handleUnable(self):
-       return "無法處理，可能輸入錯誤?"
+        return "無法處理，可能輸入錯誤?"
+
     def Keyword(self, exception):
         if exception:
             return "我也想要進來"
         return "我要進來了喔"
-    def Location(self,exception):
+
+    def Location(self, exception):
         if exception:
             return "輸入錯誤"
         return "請輸入地點"
-    def StudentID(self,exception):
+
+    def StudentID(self, exception):
         if exception:
             return "學號格式錯誤"
         return "請輸入學號"
-    def NetConfig(self,exception):
+
+    def NetConfig(self, exception):
         if exception:
             return "請回答DHCP/PPPOE"
         return "請檢查網路設定"
-    def DormRoom(self,exception):
+
+    def DormRoom(self, exception):
         if exception:
             return "請回答正確宿舍與房號"
         return "請回答宿舍與房號"
-    def ChengKungPortal(self,exception):
+
+    def ChengKungPortal(self, exception):
         if exception:
             return "請回答成功/失敗"
         return "請檢查帳號密碼是否可登入成功入口"
-    def JupyterInstalled(self,exception):
+
+    def JupyterInstalled(self, exception):
         if exception:
             return "請回答成功/失敗"
         return "請檢查安裝VPN軟體Jupyter Notebook成功或失敗"
-    def ComputerTimeSet(self,exception):
+
+    def ComputerTimeSet(self, exception):
         if exception:
             return "請回答正常/異常"
         return "請檢查系統時間"
-    def RunAsAdmin(self,exception):
+
+    def RunAsAdmin(self, exception):
         if exception:
             return "請回答是/否"
         return "是否以系統管理者身分執行"
+
 
 class Transformer(object):
     def __init__(self):
@@ -153,10 +167,10 @@ class Transformer(object):
         self.ws = WS(self.__PATH__+"/data")
         logging.critical("WS Loaded")
         logging.critical("POS Loading")
-        self.pos = POS(self.__PATH__+"/data")
+        #self.pos = POS(self.__PATH__+"/data")
         logging.critical("POS Loaded")
         logging.critical("NER Loading")
-        self.ner = NER(self.__PATH__+"/data")
+        #self.ner = NER(self.__PATH__+"/data")
         logging.critical("NER Loaded")
 
     def CKIPParser(self, sentence):
@@ -185,8 +199,10 @@ class Transformer(object):
                     keyword.append(word)
         logging.info("CKIP find TOKEN : {token}".format(token=str(keyword)))
         return keyword
-    def LocationParser(self,feature):
+
+    def LocationParser(self, feature):
         return feature
+
     def checkDormNetIDUsage(self, feature):
         n = feature[-1]
         try:
@@ -197,12 +213,14 @@ class Transformer(object):
             return "OverUse"
         else:
             return "NoneOverUse"
-    def checkDormNetSwitchHealthy(self,feature):
+
+    def checkDormNetSwitchHealthy(self, feature):
         if "勝" in feature:
             return "Alive"
         elif "光" in feature:
             return "Dead"
         else:
             raise UndefineInput
+
     def Google(self, sentenct, feature):
         return "Google Say this is:"+str(sentenct)
