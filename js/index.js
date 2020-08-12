@@ -1,5 +1,5 @@
 //from index.js
-var ws = new WebSocket("ws://140.116.72.242:8080"); 
+var ws = new WebSocket("ws://140.116.72.233:8000"); 
 var pic = "img/messageImage_1596638102086.jpg";
 ws.onerror = function(event) {
     console.log("error");
@@ -42,8 +42,9 @@ function insertMessage(mes) {
         msg = mes;
     }else{
         msg = $('.message-input').val();
-        ws.send(msg);
+        //ws.send(msg);
     }
+	ws.send(msg);
     if ($.trim(msg) == '') {
         return false;
     }
@@ -72,3 +73,52 @@ function getMessage(mes){
     setDate();
     updateScrollbar();
 }
+
+var recognition, recognizing;
+function speechInit(){
+	if(!('webkitSpeechRecognition' in window)){
+		console.log("no speech");
+	}else{
+		recognizing = false;
+		recognition = new webkitSpeechRecognition();
+		recognition.lang="cmn-Hant-TW";
+		recognition.continuous = false;
+	}
+	if(recognizing){
+		console.log("speech stop");
+		recognition.stop();
+	}else{
+		console.log("speech start");
+		recognition.start();
+	}
+	recognition.onresult = function(event){
+		var temp = "";
+		for( var i = event.resultIndex; i < event.results.length; ++i){
+			if(event.results[i].isFinal){
+				temp += event.results[i][0].transcript;
+			}
+		}
+		console.log(temp);
+		console.log(event);
+		insertMessage(temp);
+	};
+
+	recognition.onstart = function(){
+		recognizing = true;
+		console.log(recognition);
+	};
+	recognition.onend = function(){
+		recognizing = false;
+	};
+}
+
+$("#speech").click(function(){
+	console.log("start to speech recognition");
+	speechInit();
+});
+
+$("#speechStop").click(function(){
+	console.log("stop");
+	recognition.stop();
+});
+
