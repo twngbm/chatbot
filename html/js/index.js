@@ -1,5 +1,5 @@
 //from index.js
-var ws = new WebSocket("ws://140.116.72.233:8000"); 
+var ws = new WebSocket("ws://140.116.72.242:8080"); 
 var pic = "img/messageImage_1596638102086.jpg";
 ws.onerror = function(event) {
     console.log("error");
