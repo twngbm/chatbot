@@ -323,7 +323,7 @@ Message Box
 }
 
 .message-box .message-submit {
-    position: absolute;
+    position: static;
     z-index: 1;
     top: 9px;
     right: 10px;
@@ -344,13 +344,20 @@ Message Box
     background: #1D7745;
 }
 
-.message-box #speech {
-	position: absolute;
+sage-box #speech {
+    position: static;
+	z-index: 1;
 	top: 9px;
-	right: 20px;
+	font-size: 10px;
+	text-transform: uppercase;
+	line-height: 1;
+	padding: 6px 10px;
+	border-radius: 10px;
+	outline: none !important;
+	-webkit-transition: background .2s ease;
+	transition: background .2s ease;
 }
-
-
+											
 /*--------------------
 Custom Srollbar
 --------------------*/
