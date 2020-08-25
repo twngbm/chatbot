@@ -1,6 +1,12 @@
 //from index.js
 var ws = new WebSocket("ws://140.116.72.242:8080"); 
 var pic = "img/messageImage_1596638102086.jpg";
+var token ;
+ws.onopen = function(event) {
+	console.log("connection success");
+	token = $.cookie("token");
+	if( !token ) ws.send("sys_newconversation");
+}
 ws.onerror = function(event) {
     console.log("error");
     getMessage("伺服器離線中，請嘗試重新連線。");
@@ -8,11 +14,12 @@ ws.onerror = function(event) {
 }
 ws.onmessage = function(event)  { 
     var message_received = event.data;
-    console.log(message_received);
+	if(!token){
+		if( message_received.includes("sys_")) $.cookie("token", message_received.split("sys_")[1] , {expires: 3});
+		return;
+	}
     getMessage(message_received);
 };
-
-
 
 var $messages = $('.messages-content'),
     d, h, m;
