@@ -5,6 +5,7 @@ import os
 import sys
 #import chatcore as cc
 import chatcoreV2 as cc
+import jwt
 
 ###################################
 #connectionClient={}
@@ -12,6 +13,7 @@ import chatcoreV2 as cc
 ###################################
 
 WEBSOCKETPORT=8080
+jwtKey = 'rteschatbotsecret'
 
 
 class ChatServer(WebSocket):
@@ -20,6 +22,14 @@ class ChatServer(WebSocket):
         #tS = time.time()        
         
         logging.info("Client {ip}:{port} Send Sentence : {sent}".format(ip=self.clientIP, port=self.clientPort,sent=self.data))
+
+        if(mes.find("sys_") >= 0): #handle the hand shaking
+            isFirst, token = setCookie(self,slef.data)
+            if(isFirst):
+                self.sendMessage("sys_token_" + str(token))
+                return
+            else:
+                return
 
         result,connectedClient[(self.clientIP,self.clientPort)]=Chatbot.chat(self.data,connectedClient[(self.clientIP,self.clientPort)])
         
@@ -45,6 +55,20 @@ class ChatServer(WebSocket):
         
         logging.info("Client {ip}:{port} Closed.".format(
             ip=self.clientIP, port=self.clientPort))
+
+    def setCookie(self, mes):
+        if(mes.find("token_") < 0):
+            payload = {
+                "iss": "ncku.chatbot.com",
+                "iat": int(time.time()),
+                "exp": int(time.time()) + 86400*3,
+                "ip": self.clientIP
+            }
+            token = jwt.encode(payload, 'rteschatbotsecret', algorithm='HS256')
+            return true, token
+        else:
+            return false,mes.split("token_")[1]
+
 
 
 def init():
