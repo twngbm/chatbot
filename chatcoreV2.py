@@ -1,3 +1,4 @@
+from question_generator import MessageGeneator
 import warnings
 import logging
 import json
@@ -7,40 +8,74 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 with warnings.catch_warnings():
     warnings.filterwarnings("ignore", category=FutureWarning)
     from ckiptagger import data_utils, construct_dictionary, WS, POS, NER
-from message_generator import MessageGeneator
+
 
 class UndefineInput(Exception):
     pass
 
 
-class chatbot(object):
+class Chatbot(object):
     def __init__(self):
         self.__PATH__ = os.path.dirname(os.path.abspath(__file__))
         logging.critical("Loading Solution List")
-        with open(self.__PATH__+"/solution.json", "r", encoding="utf-8") as f:
+        with open(self.__PATH__+"/test.json", "r", encoding="utf-8") as f:
             self.solutionList = json.load(f)
+        # print(self.solutionList)
         logging.critical("Solution List Loaded")
         self.transformer = Transformer()
         self.MessageGeneator = MessageGeneator()
 
     def chat(self, sentence, clientStatus):
-        currentSolutionList = clientStatus[0]
-        knownInfo = clientStatus[1]
-        hoshiiFeature = clientStatus[2]
-        if currentSolutionList == None and knownInfo == None:
+        currentSolutionList = clientStatus["currentList"]
+        knownInfo = clientStatus["knownInfo"]
+        wantedFeature = clientStatus["wantedInfo"]
+        history = clientStatus["history"]
+
+        if history == [] and sentence==None:
             currentSolutionList = self.solutionList[:]
-            knownInfo = {}
-            hoshiiFeature = "Keyword"
-            return self.__GetMessage__(hoshiiFeature), [currentSolutionList, knownInfo, hoshiiFeature]
-        if sentence == None:
-            return "", [currentSolutionList, knownInfo]
+            wantedFeature=self.__findWantedKey__(currentSolutionList,knownInfo)
+            history.append(self.__GetMessage__(wantedFeature))
+            updatedClientStatus={"currentList":currentSolutionList,"knownInfo":knownInfo,"history":history,"wantedInfo":wantedFeature}
+            return self.__GetMessage__(wantedFeature),updatedClientStatus
+            #wantedFeature = "Keyword"
+            #history.append(self.__GetMessage__(wantedFeature))
+            #updateClientStatus = {"currentList": currentSolutionList,
+            #                      "knownInfo": knownInfo, "history": history, "wantedInfo": wantedFeature}
+            #return self.__GetMessage__(wantedFeature), updateClientStatus
+        
+        #if sentence == None:
+        #    return "", clientStatus
+        
+        history.append(sentence)
+
+        if wantedFeature == "isSolved":
+            nextWantedFeature = self.__findWantedKey__(
+                currentSolutionList, knownInfo)
+            if self.transformer.BooleanParser([sentence])[0] or nextWantedFeature == None:
+                history.append(self.__GetMessage__("EndMessage"))
+                updateClientStatus = {
+                    "currentList": self.solutionList[:], "knownInfo": {}, "history": history, "wantedInfo": "Keyword"}
+
+                return self.__GetMessage__("EndMessage"), updateClientStatus
+            else:
+                history.append(self.__GetMessage__(nextWantedFeature))
+                updateClientStatus = {"currentList": currentSolutionList,
+                                      "knownInfo": knownInfo, "history": history, "wantedInfo": nextWantedFeature}
+                return self.__GetMessage__(nextWantedFeature), updateClientStatus
 
         # Find Matched Solution
         unMatchSolution = []
+        
+        
         for solution in currentSolutionList:
-            inputParser = solution["Feature"][hoshiiFeature]["InputParser"]
-            key = solution["Feature"][hoshiiFeature]["Key"]
-            processedData = sentence
+            try:
+                inputParser = solution["Feature"][wantedFeature]["InputParser"]
+                key = solution["Feature"][wantedFeature]["Key"]
+            except:
+                unMatchSolution.append(solution)
+                continue
+
+            processedData = [sentence]
             for functionName in inputParser:
                 try:
                     preprocessor = getattr(self.transformer, functionName)
@@ -51,61 +86,92 @@ class chatbot(object):
                 try:
                     processedData = preprocessor(processedData)
                 except UndefineInput:
-                    return self.__GetMessage__(hoshiiFeature, True), [currentSolutionList, knownInfo, hoshiiFeature]
+                    history.append(self.__GetMessage__(wantedFeature, True))
+                    updateClientStatus = {"currentList": currentSolutionList,
+                                          "knownInfo": knownInfo, "history": history, "wantedInfo": wantedFeature}
+                    return self.__GetMessage__(wantedFeature, True), updateClientStatus
 
             inputFeature = processedData
-            if key not in inputFeature:
-                unMatchSolution.append(solution)
+            if len(inputFeature) == 1:
+                if key != inputFeature[0]:
+                    unMatchSolution.append(solution)
+            else:
+                findflag=False
+                for i in inputFeature:
+                    if i==key:
+                        findflag=True
+                    if not findflag:
+                        unMatchSolution.append(solution)
+        #print(inputFeature,key)
+        knownInfo[wantedFeature] = sentence
 
-        knownInfo[hoshiiFeature] = inputFeature
+        # Update currentSolutionList due to unMatchSolution
+        
         for i in unMatchSolution:
+            # print(i)
             currentSolutionList.remove(i)
+
+        
         for i in currentSolutionList:
-            print(i["Answer"])
+
+            # print(i["Feature"],"\n",i["Answer"])
+            pass
+        
+
+        # No answer match, Asume user have wrong input
         if currentSolutionList == []:
             try:
-                errorMessage = self.__GetMessage__(hoshiiFeature, True)
+                errorMessage = self.__GetMessage__(wantedFeature, True)
             except:
                 errorMessage = self.MessageGeneator.handleUnable()
-            print(errorMessage)
-            knownInfo.pop(hoshiiFeature)
-            return self.MessageGeneator.handleUnable(), [unMatchSolution, knownInfo, hoshiiFeature]
+            # print(errorMessage)
+            knownInfo.pop(wantedFeature)
+            for i in unMatchSolution:
+                currentSolutionList.append(i)
+            history.append(errorMessage)
+            updateClientStatus = {"currentList": currentSolutionList,
+                                  "knownInfo": knownInfo, "history": history, "wantedInfo": wantedFeature}
+            return errorMessage, updateClientStatus
 
+        # Answer Finded
         elif len(currentSolutionList) == 1:
             ans = currentSolutionList[0]["Answer"]
-            # print(self.solutionList)
-            knownInfo.pop("Keyword")
-            return ans+"\n"+self.__GetMessage__("Keyword"), [self.solutionList[:], knownInfo, "Keyword"]
-        nextHoshiiFeature = self.__findWantedKey__(
+            history.append(ans+"\n"+self.__GetMessage__("isSolved"))
+            updateClientStatus = {
+                "currentList": unMatchSolution, "knownInfo": knownInfo, "history": history, "wantedInfo": "isSolved"}
+            return ans+"\n"+self.__GetMessage__("isSolved"), updateClientStatus
+        
+        # Find Next Wanted Feature and Ask Question
+        nextWantedFeature = self.__findWantedKey__(
             currentSolutionList, knownInfo)
-        return self.__GetMessage__(nextHoshiiFeature), [currentSolutionList, knownInfo, nextHoshiiFeature]
+        
+        history.append(self.__GetMessage__(nextWantedFeature))
+        updateClientStatus = {"currentList": currentSolutionList,
+                              "knownInfo": knownInfo, "history": history, "wantedInfo": nextWantedFeature}
+        
+        return self.__GetMessage__(nextWantedFeature), updateClientStatus
 
     def __findWantedKey__(self, currentSolutionList, knownInfo):
-        if "Keyword" not in knownInfo:
-            return "Keyword"
         keyCount = {}
-
+        # print(currentSolutionList)
+        # print(knownInfo)
         for solution in currentSolutionList:
             for key in solution["Feature"]:
+                if key in knownInfo:
+                    continue
                 try:
                     keyCount[key] += 1
                 except:
                     keyCount[key] = 1
-        priority = sorted(keyCount, key=lambda x: keyCount[x], reverse=True)
-        mostWantedKey = []
-        mostWantedKeyCount = keyCount[priority[0]]
-        for k in priority:
-            if keyCount[k] != mostWantedKeyCount:
-                break
-            if k not in knownInfo:
-                mostWantedKey.append(k)
-        print(mostWantedKey)
+        if keyCount == {}:
+            return None
+        maxKeyCount = max(keyCount.values())
+        mostWantedKey = [k for k in keyCount if maxKeyCount == keyCount[k]]
+        # print(mostWantedKey)
         return random.choice(mostWantedKey)
 
     def __GetMessage__(self, featureName, exception=False):
         return getattr(self.MessageGeneator, featureName)(exception)
-
-
 
 
 class Transformer(object):
@@ -134,7 +200,7 @@ class Transformer(object):
         dictionary = construct_dictionary(word_to_weight)
 
         word_sentence_list = self.ws(
-            [sentence],
+            sentence,
             coerce_dictionary=dictionary,
         )
         #pos_sentence_list = self.pos(word_sentence_list)
@@ -146,30 +212,56 @@ class Transformer(object):
             for word in word_sentence_list[i]:
                 if word in word_to_weight:
                     keyword.append(word)
-        logging.info("CKIP find TOKEN : {token}".format(token=str(keyword)))
+        #logging.info("CKIP find TOKEN : {token}".format(token=str(keyword)))
+        if keyword==[]:
+            raise UndefineInput
         return keyword
 
     def LocationParser(self, feature):
         return feature
 
-    def checkDormNetIDUsage(self, feature):
-        n = feature[-1]
+    def DormIDUsage(self, feature):
+        
+        n = feature[0][-1]
         try:
             n = int(n)
         except:
             raise UndefineInput
         if n % 2 == 0:
-            return "OverUse"
+            return [False]
         else:
-            return "NoneOverUse"
+            return [True]
 
-    def checkDormNetSwitchHealthy(self, feature):
-        if "勝" in feature:
-            return "Alive"
-        elif "光" in feature:
-            return "Dead"
+    def DormHWChecker(self, feature):
+        
+        if "勝" in feature[0]:
+            return [True]
+        elif "光" in feature[0]:
+            return [False]
         else:
             raise UndefineInput
 
     def Google(self, sentenct, feature):
         return "Google Say this is:"+str(sentenct)
+
+    def LanLocationParser(self, feature):
+        return feature
+
+    def BooleanParser(self, feature):
+        if feature[0] in ["Yes", "正確", "是", "成功", "有","校內","正常"]:
+            return [True]
+        return [False]
+    def IPDomainParser(self,feature):
+        pass
+    def ISParser(self,feature):
+        n = feature[0][-1]
+        try:
+            n = int(n)
+        except:
+            raise UndefineInput
+        if n % 2 == 0:
+            return [False]
+        else:
+            return [True]
+    def QDParser(self,feature):
+        return feature
