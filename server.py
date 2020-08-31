@@ -98,9 +98,7 @@ class ChatServer(WebSocket):
 
 
 def init():
-    #global connectedClient
     global Chatbot
-    # connectedClient={}
     loglevel = os.getenv('LOG', "INFO")
     if loglevel == "DEBUG":
         LOG_LEVEL = logging.DEBUG

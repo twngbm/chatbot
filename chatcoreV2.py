@@ -3,6 +3,7 @@ import warnings
 import logging
 import json
 import os
+import csv
 import random
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 with warnings.catch_warnings():
@@ -10,6 +11,7 @@ with warnings.catch_warnings():
     from ckiptagger import data_utils, construct_dictionary, WS, POS, NER
 
 
+# User Input -> CKIP -> Google Fuzzy Search -> Keyword Match
 class UndefineInput(Exception):
     pass
 
@@ -20,32 +22,35 @@ class Chatbot(object):
         logging.critical("Loading Solution List")
         with open(self.__PATH__+"/test.json", "r", encoding="utf-8") as f:
             self.solutionList = json.load(f)
-        # print(self.solutionList)
         logging.critical("Solution List Loaded")
         self.transformer = Transformer()
         self.MessageGeneator = MessageGeneator()
-
+        self.solutionAppend()
+        
+    def solutionAppend(self):
+        for ITsys in self.transformer.ITinfotable:
+            ITsysItem = self.transformer.ITinfotable[ITsys]
+            ans = "該系統功能簡述:\n"+ITsysItem["功能簡述"]+"\n業務單位: " + \
+                ITsysItem["業務單位"]+"\n業務負責人分機: "+ITsysItem["業務負責人分機"]+"\n系統負責人: " + \
+                ITsysItem["系統負責人"]+"\n系統負責人分機: "+ITsysItem["系統負責人分機"]+"\n"
+            self.solutionList.append({"Feature": {"Keyword": {"InputParser": [
+                                     "CKIPParser"], "Key": ITsys}}, "Answer": ans,"Stop":True})
     def chat(self, sentence, clientStatus):
         currentSolutionList = clientStatus["currentList"]
         knownInfo = clientStatus["knownInfo"]
         wantedFeature = clientStatus["wantedInfo"]
         history = clientStatus["history"]
 
-        if history == [] and sentence==None:
+        if (history == [] and sentence == None) or sentence=="restart":
             currentSolutionList = self.solutionList[:]
-            wantedFeature=self.__findWantedKey__(currentSolutionList,knownInfo)
+            knownInfo={}
+            wantedFeature = self.__findWantedKey__(
+                currentSolutionList, knownInfo)
             history.append(self.__GetMessage__(wantedFeature))
-            updatedClientStatus={"currentList":currentSolutionList,"knownInfo":knownInfo,"history":history,"wantedInfo":wantedFeature}
-            return self.__GetMessage__(wantedFeature),updatedClientStatus
-            #wantedFeature = "Keyword"
-            #history.append(self.__GetMessage__(wantedFeature))
-            #updateClientStatus = {"currentList": currentSolutionList,
-            #                      "knownInfo": knownInfo, "history": history, "wantedInfo": wantedFeature}
-            #return self.__GetMessage__(wantedFeature), updateClientStatus
-        
-        #if sentence == None:
-        #    return "", clientStatus
-        
+            updatedClientStatus = {"currentList": currentSolutionList,
+                                   "knownInfo": knownInfo, "history": history, "wantedInfo": wantedFeature}
+            return self.__GetMessage__(wantedFeature), updatedClientStatus
+
         history.append(sentence)
 
         if wantedFeature == "isSolved":
@@ -57,16 +62,14 @@ class Chatbot(object):
                     "currentList": self.solutionList[:], "knownInfo": {}, "history": history, "wantedInfo": "Keyword"}
 
                 return self.__GetMessage__("EndMessage"), updateClientStatus
-            else:
+            elif not self.transformer.BooleanParser([sentence][0]):
                 history.append(self.__GetMessage__(nextWantedFeature))
                 updateClientStatus = {"currentList": currentSolutionList,
                                       "knownInfo": knownInfo, "history": history, "wantedInfo": nextWantedFeature}
                 return self.__GetMessage__(nextWantedFeature), updateClientStatus
 
-        # Find Matched Solution
         unMatchSolution = []
-        
-        
+
         for solution in currentSolutionList:
             try:
                 inputParser = solution["Feature"][wantedFeature]["InputParser"]
@@ -89,34 +92,25 @@ class Chatbot(object):
                     history.append(self.__GetMessage__(wantedFeature, True))
                     updateClientStatus = {"currentList": currentSolutionList,
                                           "knownInfo": knownInfo, "history": history, "wantedInfo": wantedFeature}
-                    return self.__GetMessage__(wantedFeature, True), updateClientStatus
+                    return self.__GetMessage__(wantedFeature, True)+"，或輸入restart以重新開始", updateClientStatus
 
             inputFeature = processedData
             if len(inputFeature) == 1:
                 if key != inputFeature[0]:
                     unMatchSolution.append(solution)
             else:
-                findflag=False
+                findflag = False
                 for i in inputFeature:
-                    if i==key:
-                        findflag=True
+                    if i == key:
+                        findflag = True
                     if not findflag:
                         unMatchSolution.append(solution)
-        #print(inputFeature,key)
         knownInfo[wantedFeature] = sentence
 
         # Update currentSolutionList due to unMatchSolution
-        
+
         for i in unMatchSolution:
-            # print(i)
             currentSolutionList.remove(i)
-
-        
-        for i in currentSolutionList:
-
-            # print(i["Feature"],"\n",i["Answer"])
-            pass
-        
 
         # No answer match, Asume user have wrong input
         if currentSolutionList == []:
@@ -124,31 +118,36 @@ class Chatbot(object):
                 errorMessage = self.__GetMessage__(wantedFeature, True)
             except:
                 errorMessage = self.MessageGeneator.handleUnable()
-            # print(errorMessage)
             knownInfo.pop(wantedFeature)
             for i in unMatchSolution:
                 currentSolutionList.append(i)
             history.append(errorMessage)
             updateClientStatus = {"currentList": currentSolutionList,
                                   "knownInfo": knownInfo, "history": history, "wantedInfo": wantedFeature}
-            return errorMessage, updateClientStatus
+            return errorMessage+"，或輸入restart以重新開始", updateClientStatus
 
         # Answer Finded
         elif len(currentSolutionList) == 1:
             ans = currentSolutionList[0]["Answer"]
             history.append(ans+"\n"+self.__GetMessage__("isSolved"))
-            updateClientStatus = {
-                "currentList": unMatchSolution, "knownInfo": knownInfo, "history": history, "wantedInfo": "isSolved"}
-            return ans+"\n"+self.__GetMessage__("isSolved"), updateClientStatus
-        
+            if "Stop" in currentSolutionList[0]:
+                history.append(self.__GetMessage__("EndMessage"))
+                updateClientStatus = {
+                    "currentList": self.solutionList[:], "knownInfo": {}, "history": history, "wantedInfo": "Keyword"}
+                return ans+"\n"+self.__GetMessage__("EndMessage"), updateClientStatus
+            else:
+                updateClientStatus = {
+                    "currentList": unMatchSolution, "knownInfo": knownInfo, "history": history, "wantedInfo": "isSolved"}
+                return ans+"\n"+self.__GetMessage__("isSolved"), updateClientStatus
+
         # Find Next Wanted Feature and Ask Question
         nextWantedFeature = self.__findWantedKey__(
             currentSolutionList, knownInfo)
-        
+
         history.append(self.__GetMessage__(nextWantedFeature))
         updateClientStatus = {"currentList": currentSolutionList,
                               "knownInfo": knownInfo, "history": history, "wantedInfo": nextWantedFeature}
-        
+
         return self.__GetMessage__(nextWantedFeature), updateClientStatus
 
     def __findWantedKey__(self, currentSolutionList, knownInfo):
@@ -182,29 +181,50 @@ class Transformer(object):
         self.ws = WS(self.__PATH__+"/data")
         logging.critical("WS Loaded")
         logging.critical("POS Loading")
-        #self.pos = POS(self.__PATH__+"/data")
+        # self.pos = POS(self.__PATH__+"/data")
         logging.critical("POS Loaded")
         logging.critical("NER Loading")
-        #self.ner = NER(self.__PATH__+"/data")
+        # self.ner = NER(self.__PATH__+"/data")
         logging.critical("NER Loaded")
+        with open(self.__PATH__+"/ckip.json", "r", encoding="utf-8") as f:
+            self.word_to_weight = json.load(f)
+
+        logging.critical("Information Technical Principal Loading and Parsing")
+        self.ITPrincipalParser()
+        self.word_to_weight = {**self.word_to_weight, **
+                               dict(zip(self.ITinfotableKey, [2]*len(self.ITinfotableKey)))}
+        
+
+    def ITPrincipalParser(self):
+        ITPrincipal = "ITPrincipal.csv"
+
+        with open(ITPrincipal, "r", encoding="utf-8-sig") as csvfile:
+            rows = csv.reader(csvfile)
+            header = next(rows)
+            header[0] = "代號"
+            header[6] = "業務負責人分機"
+            header[8] = "系統負責人分機"
+            header[9] = "備註"
+            header = header[:10]
+
+            self.ITinfotable = {}
+            for row in rows:
+                self.ITinfotable[row[1]] = dict(zip(header, row))
+            self.ITinfotableKey = list(self.ITinfotable.keys())
+    
+    def intentParser(self):
+        pass
 
     def CKIPParser(self, sentence):
-        word_to_weight = {
-            "網路": 1,
-            "連線": 1,
-            "宿舍": 1,
-            "宿網": 2,
-            "授權軟體": 1,
-            "VPN": 1,
-        }
+        word_to_weight = self.word_to_weight
         dictionary = construct_dictionary(word_to_weight)
 
         word_sentence_list = self.ws(
             sentence,
             coerce_dictionary=dictionary,
         )
-        #pos_sentence_list = self.pos(word_sentence_list)
-        #entity_sentence_list = self.ner(word_sentence_list, pos_sentence_list)
+        # pos_sentence_list = self.pos(word_sentence_list)
+        # entity_sentence_list = self.ner(word_sentence_list, pos_sentence_list)
 
         for i, sentence in enumerate([sentence]):
 
@@ -212,16 +232,17 @@ class Transformer(object):
             for word in word_sentence_list[i]:
                 if word in word_to_weight:
                     keyword.append(word)
-        #logging.info("CKIP find TOKEN : {token}".format(token=str(keyword)))
-        if keyword==[]:
+        # logging.info("CKIP find TOKEN : {token}".format(token=str(keyword)))
+        if keyword == []:
             raise UndefineInput
+        print(keyword)
         return keyword
 
     def LocationParser(self, feature):
         return feature
 
     def DormIDUsage(self, feature):
-        
+
         n = feature[0][-1]
         try:
             n = int(n)
@@ -233,7 +254,7 @@ class Transformer(object):
             return [True]
 
     def DormHWChecker(self, feature):
-        
+
         if "勝" in feature[0]:
             return [True]
         elif "光" in feature[0]:
@@ -248,12 +269,17 @@ class Transformer(object):
         return feature
 
     def BooleanParser(self, feature):
-        if feature[0] in ["Yes", "正確", "是", "成功", "有","校內","正常"]:
+        if feature[0] in ["Yes", "正確", "是", "成功", "有", "校內", "正常"]:
             return [True]
-        return [False]
-    def IPDomainParser(self,feature):
+        elif feature[0] in ["No","錯誤","否","非","失敗","沒有","無","異常"]:
+            return [False]
+        else:
+            return None
+
+    def IPDomainParser(self, feature):
         pass
-    def ISParser(self,feature):
+
+    def ISParser(self, feature):
         n = feature[0][-1]
         try:
             n = int(n)
@@ -263,5 +289,6 @@ class Transformer(object):
             return [False]
         else:
             return [True]
-    def QDParser(self,feature):
+
+    def QDParser(self, feature):
         return feature

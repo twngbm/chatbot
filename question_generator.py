@@ -64,7 +64,7 @@ class MessageGeneator(object):
     def isSolved(self,exception):
         if exception:
             return "請回答是/否"
-        return "問題是否有解決"
+        return "\n請問問題是否有解決?"
     def EndMessage(self,exception):
         if exception:
             return ""

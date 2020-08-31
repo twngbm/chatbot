@@ -23,10 +23,11 @@ ws.onmessage = function (event) {
             return;
         }
         if(message_received.includes("sys_history_")){
-            console.log(message_received.split("sys_history_")[1])
+            console.log(message_received.split("sys_history_")[1]);
+			restoreHistory(message_received.split("sys_history_")[1]);
         }
     }
-    else{
+    else {
         getMessage(message_received);
     }
 };
@@ -89,6 +90,22 @@ function getMessage(mes) {
     $('<div class="message new"><figure class="avatar"><img src="' + pic + '" /></figure>' + mes + '</div>').appendTo($('.mCSB_container')).addClass('new');
     setDate();
     updateScrollbar();
+}
+function restoreHistory(histString){
+	histString.replace("[","");
+	histString.replace("]","");
+	histString = histString.split(",");
+	for ( int i = 0; i < histString.length < i+=2){
+		insertMessage(histString[i]);
+		getMessage(histString[i+1]);
+	}
+}
+
+function restoreHistory(hist) {
+    for (i = 0; i < hist.length; i += 2) {
+        insertMessage(hist[i]);
+        getMessage(hist[i + 1]);
+    }
 }
 
 var recognition, recognizing;

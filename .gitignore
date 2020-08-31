@@ -7,3 +7,5 @@ test.json
 .vscode/
 Cookies/
 *.swp
+*.xlsx
+ITPrincipalParser.py
