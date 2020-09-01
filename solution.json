@@ -7,30 +7,30 @@
                 ],
                 "Key": "網路"
             },
+            "ConnectionType": {
+                "InputParser": [],
+                "Key": "有線"
+            },
             "Location": {
                 "InputParser": [
-                    "LocationParser"
+                    "LanLocationParser"
                 ],
                 "Key": "宿舍"
             },
+            "DormID": {
+                "InputParser": [
+                    "DormHWChecker"
+                ],
+                "Key": true
+            },
             "StudentID": {
                 "InputParser": [
-                    "checkDormNetIDUsage"
+                    "DormIDUsage"
                 ],
-                "Key": "OverUse"
-            },
-            "NetConfig": {
-                "InputParser": [],
-                "Key": "DHCP"
-            },
-            "DormRoom": {
-                "InputParser": [
-                    "checkDormNetSwitchHealthy"
-                ],
-                "Key": "Alive"
+                "Key": false
             }
         },
-        "Answer": "超流量使用"
+        "Answer": "您已超流量(24小時內超過8GB)"
     },
     {
         "Feature": {
@@ -40,27 +40,105 @@
                 ],
                 "Key": "網路"
             },
+            "ConnectionType": {
+                "InputParser": [],
+                "Key": "有線"
+            },
             "Location": {
                 "InputParser": [
-                    "LocationParser"
+                    "LanLocationParser"
                 ],
                 "Key": "宿舍"
             },
             "StudentID": {
                 "InputParser": [
-                    "checkDormNetIDUsage"
+                    "DormIDUsage"
                 ],
-                "Key": "NoneOverUse"
+                "Key": true
             },
-            "NetConfig": {
-                "InputParser": [],
-                "Key": "PPPOE"
-            },
-            "DormRoom": {
+            "DormID": {
                 "InputParser": [
-                    "checkDormNetSwitchHealthy"
+                    "DormHWChecker"
                 ],
-                "Key": "Alive"
+                "Key": false
+            }
+        },
+        "Answer": "您所在宿舍/樓層之網路設備目前異常中"
+    },
+    {
+        "Feature": {
+            "Keyword": {
+                "InputParser": [
+                    "CKIPParser"
+                ],
+                "Key": "網路"
+            },
+            "ConnectionType": {
+                "InputParser": [],
+                "Key": "有線"
+            },
+            "Location": {
+                "InputParser": [
+                    "LanLocationParser"
+                ],
+                "Key": "宿舍"
+            },
+            "StudentID": {
+                "InputParser": [
+                    "DormIDUsage"
+                ],
+                "Key": true
+            },
+            "DormID": {
+                "InputParser": [
+                    "DormHWChecker"
+                ],
+                "Key": true
+            },
+            "isDHCP": {
+                "InputParser": [
+                    "BooleanParser"
+                ],
+                "Key": true
+            }
+        },
+        "Answer": "請聯絡61010由專人為您服務"
+    },
+    {
+        "Feature": {
+            "Keyword": {
+                "InputParser": [
+                    "CKIPParser"
+                ],
+                "Key": "網路"
+            },
+            "ConnectionType": {
+                "InputParser": [],
+                "Key": "有線"
+            },
+            "Location": {
+                "InputParser": [
+                    "LanLocationParser"
+                ],
+                "Key": "宿舍"
+            },
+            "StudentID": {
+                "InputParser": [
+                    "DormIDUsage"
+                ],
+                "Key": true
+            },
+            "DormID": {
+                "InputParser": [
+                    "DormHWChecker"
+                ],
+                "Key": true
+            },
+            "isDHCP": {
+                "InputParser": [
+                    "BooleanParser"
+                ],
+                "Key": false
             }
         },
         "Answer": "請設定為DHCP"
@@ -73,30 +151,18 @@
                 ],
                 "Key": "網路"
             },
+            "ConnectionType": {
+                "InputParser": [],
+                "Key": "有線"
+            },
             "Location": {
                 "InputParser": [
-                    "LocationParser"
+                    "LanLocationParser"
                 ],
-                "Key": "宿舍"
-            },
-            "StudentID": {
-                "InputParser": [
-                    "checkDormNetIDUsage"
-                ],
-                "Key": "NoneOverUse"
-            },
-            "NetConfig": {
-                "InputParser": [],
-                "Key": "DHCP"
-            },
-            "DormRoom": {
-                "InputParser": [
-                    "checkDormNetSwitchHealthy"
-                ],
-                "Key": "Dead"
+                "Key": "系館"
             }
         },
-        "Answer": "該宿舍目前網路設備維修中"
+        "Answer": "請聯絡貴系網管進行處理"
     },
     {
         "Feature": {
@@ -106,30 +172,18 @@
                 ],
                 "Key": "網路"
             },
+            "ConnectionType": {
+                "InputParser": [],
+                "Key": "有線"
+            },
             "Location": {
                 "InputParser": [
-                    "LocationParser"
+                    "LanLocationParser"
                 ],
-                "Key": "宿舍"
-            },
-            "StudentID": {
-                "InputParser": [
-                    "checkDormNetIDUsage"
-                ],
-                "Key": "NoneOverUse"
-            },
-            "NetConfig": {
-                "InputParser": [],
-                "Key": "DHCP"
-            },
-            "DormRoom": {
-                "InputParser": [
-                    "checkDormNetSwitchHealthy"
-                ],
-                "Key": "Alive"
+                "Key": "行政單位"
             }
         },
-        "Answer": "請聯絡線上客服為您處理"
+        "Answer": "請聯絡貴單位網管進行處理"
     },
     {
         "Feature": {
@@ -139,12 +193,68 @@
                 ],
                 "Key": "網路"
             },
-            "Location": {
+            "ConnectionType": {
                 "InputParser": [],
-                "Key": "實驗室"
+                "Key": "無線"
+            },
+            "UserDomain": {
+                "InputParser": [
+                    "BooleanParser"
+                ],
+                "Key": true
+            },
+            "UserIdentifity": {
+                "InputParser": [],
+                "Key": "學生"
             }
         },
-        "Answer": "請聯絡貴系網管"
+        "Answer": "請聯絡61010由專人為您服務"
+    },
+    {
+        "Feature": {
+            "Keyword": {
+                "InputParser": [
+                    "CKIPParser"
+                ],
+                "Key": "網路"
+            },
+            "ConnectionType": {
+                "InputParser": [],
+                "Key": "無線"
+            },
+            "UserDomain": {
+                "InputParser": [
+                    "BooleanParser"
+                ],
+                "Key": true
+            },
+            "UserIdentifity": {
+                "InputParser": [],
+                "Key": "教授"
+            }
+        },
+        "Answer": "請聯絡61010由專人為您服務"
+    },
+    {
+        "Feature": {
+            "Keyword": {
+                "InputParser": [
+                    "CKIPParser"
+                ],
+                "Key": "網路"
+            },
+            "ConnectionType": {
+                "InputParser": [],
+                "Key": "無線"
+            },
+            "UserDomain": {
+                "InputParser": [
+                    "BooleanParser"
+                ],
+                "Key": false
+            }
+        },
+        "Answer": "請聯絡61010由專人為您服務"
     },
     {
         "Feature": {
@@ -154,30 +264,32 @@
                 ],
                 "Key": "授權軟體"
             },
-            "Location": {
+            "IPDomain": {
                 "InputParser": [
-                    "LocationParser"
+                    "BooleanParser"
                 ],
-                "Key": "校外"
+                "Key": true
             },
-            "ChengKungPortal": {
-                "InputParser": [],
-                "Key": "成功"
-            },
-            "JupyterInstalled": {
-                "InputParser": [],
-                "Key": "成功"
-            },
-            "ComputerTimeSet": {
-                "InputParser": [],
-                "Key": "正常"
+            "ComputerTimeset": {
+                "InputParser": [
+                    "BooleanParser"
+                ],
+                "Key": true
             },
             "RunAsAdmin": {
-                "InputParser": [],
-                "Key": "是"
+                "InputParser": [
+                    "BooleanParser"
+                ],
+                "Key": true
+            },
+            "InstalledVersion": {
+                "InputParser": [
+                    "BooleanParser"
+                ],
+                "Key": true
             }
         },
-        "Answer": "請聯絡線上客服為您處理"
+        "Answer": "請聯絡61010由專人為您服務"
     },
     {
         "Feature": {
@@ -187,30 +299,32 @@
                 ],
                 "Key": "授權軟體"
             },
-            "Location": {
+            "IPDomain": {
                 "InputParser": [
-                    "LocationParser"
+                    "BooleanParser"
                 ],
-                "Key": "校外"
+                "Key": true
             },
-            "ChengKungPortal": {
-                "InputParser": [],
-                "Key": "成功"
-            },
-            "JupyterInstalled": {
-                "InputParser": [],
-                "Key": "成功"
-            },
-            "ComputerTimeSet": {
-                "InputParser": [],
-                "Key": "正常"
+            "ComputerTimeset": {
+                "InputParser": [
+                    "BooleanParser"
+                ],
+                "Key": true
             },
             "RunAsAdmin": {
-                "InputParser": [],
-                "Key": "否"
+                "InputParser": [
+                    "BooleanParser"
+                ],
+                "Key": true
+            },
+            "InstalledVersion": {
+                "InputParser": [
+                    "BooleanParser"
+                ],
+                "Key": false
             }
         },
-        "Answer": "請以系統管理員身分執行"
+        "Answer": "請安裝本校所提供之授權軟體"
     },
     {
         "Feature": {
@@ -220,30 +334,26 @@
                 ],
                 "Key": "授權軟體"
             },
-            "Location": {
+            "IPDomain": {
                 "InputParser": [
-                    "LocationParser"
+                    "BooleanParser"
                 ],
-                "Key": "校外"
+                "Key": true
             },
-            "ChengKungPortal": {
-                "InputParser": [],
-                "Key": "成功"
-            },
-            "JupyterInstalled": {
-                "InputParser": [],
-                "Key": "成功"
-            },
-            "ComputerTimeSet": {
-                "InputParser": [],
-                "Key": "異常"
+            "ComputerTimeset": {
+                "InputParser": [
+                    "BooleanParser"
+                ],
+                "Key": true
             },
             "RunAsAdmin": {
-                "InputParser": [],
-                "Key": "是"
+                "InputParser": [
+                    "BooleanParser"
+                ],
+                "Key": false
             }
         },
-        "Answer": "請進行系統對時"
+        "Answer": "請以系統管理員身份執行"
     },
     {
         "Feature": {
@@ -253,30 +363,26 @@
                 ],
                 "Key": "授權軟體"
             },
-            "Location": {
+            "IPDomain": {
                 "InputParser": [
-                    "LocationParser"
+                    "BooleanParser"
                 ],
-                "Key": "校外"
-            },
-            "ChengKungPortal": {
-                "InputParser": [],
-                "Key": "成功"
-            },
-            "JupyterInstalled": {
-                "InputParser": [],
-                "Key": "失敗"
-            },
-            "ComputerTimeSet": {
-                "InputParser": [],
-                "Key": "正常"
+                "Key": true
             },
             "RunAsAdmin": {
-                "InputParser": [],
-                "Key": "是"
+                "InputParser": [
+                    "BooleanParser"
+                ],
+                "Key": true
+            },
+            "ComputerTimeset": {
+                "InputParser": [
+                    "BooleanParser"
+                ],
+                "Key": false
             }
         },
-        "Answer": "請安裝VPN軟體Jupyter Notebook"
+        "Answer": "請進行網路對時候重新嘗試"
     },
     {
         "Feature": {
@@ -286,30 +392,38 @@
                 ],
                 "Key": "授權軟體"
             },
-            "Location": {
+            "IPDomain": {
                 "InputParser": [
-                    "LocationParser"
+                    "BooleanParser"
                 ],
-                "Key": "校外"
+                "Key": false
             },
-            "ChengKungPortal": {
-                "InputParser": [],
-                "Key": "失敗"
+            "UseVPN": {
+                "InputParser": [
+                    "BooleanParser"
+                ],
+                "Key": true
             },
-            "JupyterInstalled": {
-                "InputParser": [],
-                "Key": "成功"
-            },
-            "ComputerTimeSet": {
-                "InputParser": [],
-                "Key": "正常"
+            "ComputerTimeset": {
+                "InputParser": [
+                    "BooleanParser"
+                ],
+                "Key": true
             },
             "RunAsAdmin": {
-                "InputParser": [],
-                "Key": "是"
+                "InputParser": [
+                    "BooleanParser"
+                ],
+                "Key": true
+            },
+            "InstalledVersion": {
+                "InputParser": [
+                    "BooleanParser"
+                ],
+                "Key": true
             }
         },
-        "Answer": "請確認帳號密碼是否為成功入口帳號密碼"
+        "Answer": "請聯絡61010由專人為您服務"
     },
     {
         "Feature": {
@@ -319,22 +433,38 @@
                 ],
                 "Key": "授權軟體"
             },
-            "Location": {
+            "IPDomain": {
                 "InputParser": [
-                    "LocationParser"
+                    "BooleanParser"
                 ],
-                "Key": "校內"
+                "Key": false
             },
-            "ComputerTimeSet": {
-                "InputParser": [],
-                "Key": "正常"
+            "UseVPN": {
+                "InputParser": [
+                    "BooleanParser"
+                ],
+                "Key": true
+            },
+            "ComputerTimeset": {
+                "InputParser": [
+                    "BooleanParser"
+                ],
+                "Key": true
             },
             "RunAsAdmin": {
-                "InputParser": [],
-                "Key": "是"
+                "InputParser": [
+                    "BooleanParser"
+                ],
+                "Key": true
+            },
+            "InstalledVersion": {
+                "InputParser": [
+                    "BooleanParser"
+                ],
+                "Key": false
             }
         },
-        "Answer": "請聯絡線上客服為您處理"
+        "Answer": "請安裝本校所提供之授權軟體"
     },
     {
         "Feature": {
@@ -344,22 +474,32 @@
                 ],
                 "Key": "授權軟體"
             },
-            "Location": {
+            "IPDomain": {
                 "InputParser": [
-                    "LocationParser"
+                    "BooleanParser"
                 ],
-                "Key": "校內"
+                "Key": false
             },
-            "ComputerTimeSet": {
-                "InputParser": [],
-                "Key": "異常"
+            "UseVPN": {
+                "InputParser": [
+                    "BooleanParser"
+                ],
+                "Key": true
+            },
+            "ComputerTimeset": {
+                "InputParser": [
+                    "BooleanParser"
+                ],
+                "Key": true
             },
             "RunAsAdmin": {
-                "InputParser": [],
-                "Key": "是"
+                "InputParser": [
+                    "BooleanParser"
+                ],
+                "Key": false
             }
         },
-        "Answer": "請進行系統對時"
+        "Answer": "請以系統管理員身份執行"
     },
     {
         "Feature": {
@@ -369,22 +509,55 @@
                 ],
                 "Key": "授權軟體"
             },
-            "Location": {
+            "IPDomain": {
                 "InputParser": [
-                    "LocationParser"
+                    "BooleanParser"
                 ],
-                "Key": "校內"
+                "Key": false
             },
-            "ComputerTimeSet": {
-                "InputParser": [],
-                "Key": "正常"
+            "UseVPN": {
+                "InputParser": [
+                    "BooleanParser"
+                ],
+                "Key": true
             },
             "RunAsAdmin": {
-                "InputParser": [],
-                "Key": "否"
+                "InputParser": [
+                    "BooleanParser"
+                ],
+                "Key": true
+            },
+            "ComputerTimeset": {
+                "InputParser": [
+                    "BooleanParser"
+                ],
+                "Key": false
             }
         },
-        "Answer": "請以系統管理員身分執行"
+        "Answer": "請進行網路對時候重新嘗試"
+    },
+    {
+        "Feature": {
+            "Keyword": {
+                "InputParser": [
+                    "CKIPParser"
+                ],
+                "Key": "授權軟體"
+            },
+            "IPDomain": {
+                "InputParser": [
+                    "BooleanParser"
+                ],
+                "Key": false
+            },
+            "UseVPN": {
+                "InputParser": [
+                    "BooleanParser"
+                ],
+                "Key": false
+            }
+        },
+        "Answer": "請使用VPN連線"
     },
     {
         "Feature": {
@@ -394,16 +567,14 @@
                 ],
                 "Key": "VPN"
             },
-            "ChengKungPortal": {
-                "InputParser": [],
-                "Key": "成功"
-            },
-            "JupyterInstalled": {
-                "InputParser": [],
-                "Key": "成功"
+            "VPNQD": {
+                "InputParser": [
+                    "QDParser"
+                ],
+                "Key": "安裝"
             }
         },
-        "Answer": "請聯絡線上客服為您處理"
+        "Answer": "請參考網頁說明"
     },
     {
         "Feature": {
@@ -413,16 +584,20 @@
                 ],
                 "Key": "VPN"
             },
-            "ChengKungPortal": {
-                "InputParser": [],
-                "Key": "失敗"
+            "VPNQD": {
+                "InputParser": [
+                    "QDParser"
+                ],
+                "Key": "使用"
             },
-            "JupyterInstalled": {
-                "InputParser": [],
-                "Key": "成功"
+            "StudentID": {
+                "InputParser": [
+                    "ISParser"
+                ],
+                "Key": true
             }
         },
-        "Answer": "請確認帳號密碼是否為成功入口帳號密碼"
+        "Answer": "該帳號目前被資安通報處理中"
     },
     {
         "Feature": {
@@ -432,15 +607,128 @@
                 ],
                 "Key": "VPN"
             },
-            "ChengKungPortal": {
-                "InputParser": [],
-                "Key": "成功"
+            "VPNQD": {
+                "InputParser": [
+                    "QDParser"
+                ],
+                "Key": "使用"
             },
-            "JupyterInstalled": {
-                "InputParser": [],
-                "Key": "失敗"
+            "StudentID": {
+                "InputParser": [
+                    "ISParser"
+                ],
+                "Key": false
+            },
+            "iNCKULogin": {
+                "InputParser": [
+                    "BooleanParser"
+                ],
+                "Key": true
             }
         },
-        "Answer": "請安裝VPN軟體Jupyter Notebook"
+        "Answer": "請聯絡61010由專人為您服務"
+    },
+    {
+        "Feature": {
+            "Keyword": {
+                "InputParser": [
+                    "CKIPParser"
+                ],
+                "Key": "VPN"
+            },
+            "VPNQD": {
+                "InputParser": [
+                    "QDParser"
+                ],
+                "Key": "使用"
+            },
+            "StudentID": {
+                "InputParser": [
+                    "ISParser"
+                ],
+                "Key": false
+            },
+            "iNCKULogin": {
+                "InputParser": [
+                    "BooleanParser"
+                ],
+                "Key": false
+            }
+        },
+        "Answer": "請確認帳號密碼是否正確"
+    },
+    {
+        "Feature": {
+            "Keyword": {
+                "InputParser": [
+                    "CKIPParser"
+                ],
+                "Key": "成功入口"
+            },
+            "inckuQD": {
+                "InputParser": [
+                    "QDParser"
+                ],
+                "Key": "忘記密碼"
+            },
+            "BackupMail": {
+                "InputParser": [
+                    "BooleanParser"
+                ],
+                "Key": true
+            }
+        },
+        "Answer": "請使用備用信箱進行密碼重設"
+    },
+    {
+        "Feature": {
+            "Keyword": {
+                "InputParser": [
+                    "CKIPParser"
+                ],
+                "Key": "成功入口"
+            },
+            "inckuQD": {
+                "InputParser": [
+                    "QDParser"
+                ],
+                "Key": "忘記密碼"
+            },
+            "BackupMail": {
+                "InputParser": [
+                    "BooleanParser"
+                ],
+                "Key": false
+            }
+        },
+        "Answer": "請聯絡61010由專人為您服務，或是由現場臨櫃處理"
+    },
+    {
+        "Feature": {
+            "Keyword": {
+                "InputParser": [
+                    "CKIPParser"
+                ],
+                "Key": "成功入口"
+            },
+            "inckuQD": {
+                "InputParser": [
+                    "QDParser"
+                ],
+                "Key": "預設密碼無法登入"
+            }
+        },
+        "Answer": "請聯絡61010由專人為您服務"
+    },
+    {
+        "Feature": {
+            "Keyword": {
+                "InputParser": [
+                    "CKIPParser"
+                ],
+                "Key": "防疫系統"
+            }
+        },
+        "Answer": "請直撥分機50340衛保組"
     }
 ]

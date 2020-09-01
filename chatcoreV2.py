@@ -20,7 +20,7 @@ class Chatbot(object):
     def __init__(self):
         self.__PATH__ = os.path.dirname(os.path.abspath(__file__))
         logging.critical("Loading Solution List")
-        with open(self.__PATH__+"/test.json", "r", encoding="utf-8") as f:
+        with open(self.__PATH__+"/solution.json", "r", encoding="utf-8") as f:
             self.solutionList = json.load(f)
         logging.critical("Solution List Loaded")
         self.transformer = Transformer()
@@ -30,9 +30,9 @@ class Chatbot(object):
     def solutionAppend(self):
         for ITsys in self.transformer.ITinfotable:
             ITsysItem = self.transformer.ITinfotable[ITsys]
-            ans = "該系統功能簡述:\n"+ITsysItem["功能簡述"]+"\n業務單位: " + \
-                ITsysItem["業務單位"]+"\n業務負責人分機: "+ITsysItem["業務負責人分機"]+"\n系統負責人: " + \
-                ITsysItem["系統負責人"]+"\n系統負責人分機: "+ITsysItem["系統負責人分機"]+"\n"
+            ans = "該系統功能簡述:<br>"+ITsysItem["功能簡述"]+"<br>業務單位: " + \
+                ITsysItem["業務單位"]+"<br>業務負責人分機: "+ITsysItem["業務負責人分機"]+"<br>系統負責人: " + \
+                ITsysItem["系統負責人"]+"<br>系統負責人分機: "+ITsysItem["系統負責人分機"]+"<br>"
             self.solutionList.append({"Feature": {"Keyword": {"InputParser": [
                                      "CKIPParser"], "Key": ITsys}}, "Answer": ans,"Stop":True})
     def chat(self, sentence, clientStatus):
@@ -40,7 +40,7 @@ class Chatbot(object):
         knownInfo = clientStatus["knownInfo"]
         wantedFeature = clientStatus["wantedInfo"]
         history = clientStatus["history"]
-
+        
         if (history == [] and sentence == None) or sentence=="restart":
             currentSolutionList = self.solutionList[:]
             knownInfo={}
@@ -56,13 +56,14 @@ class Chatbot(object):
         if wantedFeature == "isSolved":
             nextWantedFeature = self.__findWantedKey__(
                 currentSolutionList, knownInfo)
+            print(self.transformer.BooleanParser([sentence]))
             if self.transformer.BooleanParser([sentence])[0] or nextWantedFeature == None:
                 history.append(self.__GetMessage__("EndMessage"))
                 updateClientStatus = {
                     "currentList": self.solutionList[:], "knownInfo": {}, "history": history, "wantedInfo": "Keyword"}
 
                 return self.__GetMessage__("EndMessage"), updateClientStatus
-            elif not self.transformer.BooleanParser([sentence][0]):
+            elif not self.transformer.BooleanParser([sentence])[0]:
                 history.append(self.__GetMessage__(nextWantedFeature))
                 updateClientStatus = {"currentList": currentSolutionList,
                                       "knownInfo": knownInfo, "history": history, "wantedInfo": nextWantedFeature}
@@ -129,16 +130,16 @@ class Chatbot(object):
         # Answer Finded
         elif len(currentSolutionList) == 1:
             ans = currentSolutionList[0]["Answer"]
-            history.append(ans+"\n"+self.__GetMessage__("isSolved"))
+            history.append(ans+"<br>"+self.__GetMessage__("isSolved"))
             if "Stop" in currentSolutionList[0]:
                 history.append(self.__GetMessage__("EndMessage"))
                 updateClientStatus = {
                     "currentList": self.solutionList[:], "knownInfo": {}, "history": history, "wantedInfo": "Keyword"}
-                return ans+"\n"+self.__GetMessage__("EndMessage"), updateClientStatus
+                return ans+"<br>"+self.__GetMessage__("EndMessage"), updateClientStatus
             else:
                 updateClientStatus = {
                     "currentList": unMatchSolution, "knownInfo": knownInfo, "history": history, "wantedInfo": "isSolved"}
-                return ans+"\n"+self.__GetMessage__("isSolved"), updateClientStatus
+                return ans+"<br>"+self.__GetMessage__("isSolved"), updateClientStatus
 
         # Find Next Wanted Feature and Ask Question
         nextWantedFeature = self.__findWantedKey__(
@@ -188,12 +189,11 @@ class Transformer(object):
         logging.critical("NER Loaded")
         with open(self.__PATH__+"/ckip.json", "r", encoding="utf-8") as f:
             self.word_to_weight = json.load(f)
-
         logging.critical("Information Technical Principal Loading and Parsing")
         self.ITPrincipalParser()
         self.word_to_weight = {**self.word_to_weight, **
                                dict(zip(self.ITinfotableKey, [2]*len(self.ITinfotableKey)))}
-        
+        #print(self.word_to_weight)
 
     def ITPrincipalParser(self):
         ITPrincipal = "ITPrincipal.csv"
@@ -217,6 +217,7 @@ class Transformer(object):
 
     def CKIPParser(self, sentence):
         word_to_weight = self.word_to_weight
+        
         dictionary = construct_dictionary(word_to_weight)
 
         word_sentence_list = self.ws(
@@ -235,7 +236,7 @@ class Transformer(object):
         # logging.info("CKIP find TOKEN : {token}".format(token=str(keyword)))
         if keyword == []:
             raise UndefineInput
-        print(keyword)
+        #print(keyword)
         return keyword
 
     def LocationParser(self, feature):

@@ -64,11 +64,11 @@ class MessageGeneator(object):
     def isSolved(self,exception):
         if exception:
             return "請回答是/否"
-        return "\n請問問題是否有解決?"
+        return "<br>請問問題是否有解決?"
     def EndMessage(self,exception):
         if exception:
             return ""
-        return "感謝使用\n請問有其他問題嗎?"
+        return "感謝使用，如問題尚無解決請聯絡計網中心61010<br>請問有其他問題嗎?"
     def IPDomain(self,exception):
         if exception:
             return "請輸入是/否"
@@ -95,5 +95,5 @@ class MessageGeneator(object):
         return "請問是否有設定備用信箱?"
     def inckuQD(self, exception):
         if exception:
-            return "請輸入\n忘記密碼\n預設密碼無法登入"
+            return "請輸入<br>忘記密碼<br>預設密碼無法登入"
         return "請問在成功入口使用上有什麼問題?"

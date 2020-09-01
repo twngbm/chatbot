@@ -8,6 +8,9 @@ ws.onopen = function (event) {
     if (!token) { ws.send("sys_newconversation"); hasToken = false; }
     else { ws.send(("sys_token_") + $.cookie("token")); hasToken = true; }
 }
+ws.onclose=function(event){
+    console.log("close websocket");
+};
 ws.onerror = function (event) {
     console.log("error");
     getMessage("伺服器離線中，請嘗試重新連線。");
@@ -95,7 +98,7 @@ function restoreHistory(histString){
 	histString.replace("[","");
 	histString.replace("]","");
 	histString = histString.split(",");
-	for ( int i = 0; i < histString.length < i+=2){
+	for (var i = 0; i < histString.length ;i+=2){
 		insertMessage(histString[i]);
 		getMessage(histString[i+1]);
 	}
