@@ -9,3 +9,5 @@ Cookies/
 *.swp
 *.xlsx
 ITPrincipalParser.py
+.ipynb_checkpoints/
+.vscode/

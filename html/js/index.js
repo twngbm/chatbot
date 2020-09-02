@@ -4,12 +4,10 @@ var pic = "img/messageImage_1596638102086.jpg";
 var token;
 var hasToken = false;
 ws.onopen = function (event) {
-    token = $.cookie("token");
-    if (!token) { ws.send("sys_newconversation"); hasToken = false; }
-    else { ws.send(("sys_token_") + $.cookie("token")); hasToken = true; }
+    console.log("Open websocket")
 }
 ws.onclose=function(event){
-    console.log("close websocket");
+    console.log("Close Websocket");
 };
 ws.onerror = function (event) {
     console.log("error");
@@ -20,7 +18,7 @@ ws.onmessage = function (event) {
     var message_received = event.data;
     //console.log(message_received)
     if (message_received.includes("sys_")) {
-        if (!hasToken || message_received.includes("sys_token_")) {
+        if (message_received.includes("sys_token_")) {
             if (message_received.includes("sys_")) $.cookie("token", message_received.split("sys_token_")[1], { expires: 3 });
             hasToken = true;
             return;
@@ -57,7 +55,7 @@ function setDate() {
     }
 }
 
-function insertMessage(mes) {
+function insertMessage(mes,restore) {
     var msg;
     if (mes) {
         msg = mes;
@@ -65,9 +63,12 @@ function insertMessage(mes) {
         msg = $('.message-input').val();
         //ws.send(msg);
     }
-    ws.send(msg);
-    if ($.trim(msg) == '') {
-        return false;
+    
+    if (!restore){
+        ws.send(msg);
+        if ($.trim(msg) == '') {
+            return false;
+        }
     }
     $('<div class="message message-personal">' + msg + '</div>').appendTo($('.mCSB_container')).addClass('new');
     setDate();
@@ -95,21 +96,17 @@ function getMessage(mes) {
     updateScrollbar();
 }
 function restoreHistory(histString){
-	histString.replace("[","");
-	histString.replace("]","");
-	histString = histString.split(",");
+	histString=histString.replace("[","");
+    histString=histString.replace("]","");
+    histString=histString.split("'").join("");
+    histString = histString.split(",");
+    console.log(histString);
 	for (var i = 0; i < histString.length ;i+=2){
-		insertMessage(histString[i]);
-		getMessage(histString[i+1]);
+        getMessage(histString[i]);
+		insertMessage(histString[i+1],true);
 	}
 }
 
-function restoreHistory(hist) {
-    for (i = 0; i < hist.length; i += 2) {
-        insertMessage(hist[i]);
-        getMessage(hist[i + 1]);
-    }
-}
 
 var recognition, recognizing;
 function speechInit() {
