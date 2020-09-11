@@ -4,6 +4,10 @@ test.py
 psudoserver.py
 data.zip
 test.json
-.vscode/
 Cookies/
 *.swp
+*.xlsx
+ITPrincipalParser.py
+.ipynb_checkpoints/
+.vscode/
+Chatbot Q_A記錄.docx

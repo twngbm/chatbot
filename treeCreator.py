@@ -183,7 +183,7 @@ root = {
             Key: {
                 "網路": Network,
                 "授權軟體": CAS,  # Campus Authorized Software
-                "VPM": VPN,
+                "VPN": VPN,
                 "成功入口": iNCKU,
                 "防疫系統": {Answer: "請直撥分機50340衛保組"}
             }
@@ -255,6 +255,6 @@ def set_default(obj):
     raise TypeError
 
 
-with open("./test.json", "w", encoding='utf-8') as f:
+with open("./solution.json", "w", encoding='utf-8') as f:
     json.dump(answerList, f, default=set_default, ensure_ascii=False)
 # print(answerList)
