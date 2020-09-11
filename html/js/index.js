@@ -24,6 +24,7 @@ ws.onmessage = function (event) {
         }
         if(message_received.includes("sys_history_")){
             console.log(message_received.split("sys_history_")[1])
+			restoreHistory(message_received.split("sys_history_")[1]);
         }
     }
     else{
@@ -36,6 +37,7 @@ var $messages = $('.messages-content'),
 
 $(window).load(function () {
     $messages.mCustomScrollbar();
+    speechInit();
 });
 
 function updateScrollbar() {
@@ -91,51 +93,10 @@ function getMessage(mes) {
     updateScrollbar();
 }
 
-var recognition, recognizing;
-function speechInit() {
-    if (!('webkitSpeechRecognition' in window)) {
-        console.log("no speech");
-    } else {
-        recognizing = false;
-        recognition = new webkitSpeechRecognition();
-        recognition.lang = "cmn-Hant-TW";
-        recognition.continuous = false;
-    }
-    if (recognizing) {
-        console.log("speech stop");
-        recognition.stop();
-    } else {
-        console.log("speech start");
-        recognition.start();
-    }
-    recognition.onresult = function (event) {
-        var temp = "";
-        for (var i = event.resultIndex; i < event.results.length; ++i) {
-            if (event.results[i].isFinal) {
-                temp += event.results[i][0].transcript;
-            }
-        }
-        console.log(temp);
-        console.log(event);
-        insertMessage(temp);
-    };
-
-    recognition.onstart = function () {
-        recognizing = true;
-        console.log(recognition);
-    };
-    recognition.onend = function () {
-        recognizing = false;
-    };
+function restoreHistory(hist){
+	for ( i = 0 ; i < hist.length; i+=2 ){
+		insertMessage(hist[i]);
+		getMessage(hist[i+1]);
+	}
 }
-
-$("#speech").click(function () {
-    console.log("start to speech recognition");
-    speechInit();
-});
-
-$("#speechStop").click(function () {
-    console.log("stop");
-    recognition.stop();
-});
 
