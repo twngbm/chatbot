@@ -10,18 +10,18 @@ import websockets.handshake
 import signal
 import concurrent.futures
 import traceback
+import nest_asyncio
+import UserObj
+import pickle
+nest_asyncio.apply()
+#import multiprocessing
+#multiprocessing.set_start_method('fork', True)
 
-
-
-
+#TODO：Multi processing websocket werver
 ###################################
 # connectionClient={}
 # {(ip,port):{"currentRoot":<tree_node>,"knownInfo":{"ID":"Q36061020",}},}
 ###################################
-
-WEBSOCKETPORT = 8080
-jwtKey = 'rteschatbotsecret'
-ITPrincipal = "ITPrincipal.csv"
 
 def init():
     global Chatbot
@@ -44,7 +44,7 @@ def init():
     logging.basicConfig(level=LOG_LEVEL, format=formatter,
                         datefmt="%Y-%m-%d %H:%M:%S")
     logging.critical("Chatbot Core Initinal")
-    import chatcoreV2 as cc
+    import chatcoreV3 as cc
     Chatbot = cc.Chatbot()
 
     logging.critical("Chatbot Core Initinal Done")
@@ -53,23 +53,40 @@ def init():
 class ClientHelper(object):
 
     @staticmethod
-    def restoreUserStatus(headers, clientInfo):
+    async def botHandshake(header, clientInfo, websocket)->UserObj.User:
+        user,NewClient = await ClientHelper.restoreUserStatus(header, clientInfo)
+        if NewClient:
+            await websocket.send(f"sys_token_{user.token}")
+            logging.debug(f"Initinal New Client with Token={user.token}")
+            user.userUpdate("raw_restart")
+            await Chatbot.chat(user)
+            #result, userStatus=await Chatbot.chat(None,userStatus)
+            #result,userStatus=await loop.run_in_executor(pool,Chatbot.chat,None,userStatus)
+            await websocket.send(str({"Response":user.botSay.Response,"Metadata":None}))
+        else:
+            history = user.chatHistory
+            await websocket.send(f"sys_history_{history}")
+            logging.debug(f"Load Saved Client with Token={user.token}")
+        
+
+    @staticmethod
+    async def restoreUserStatus(headers, clientInfo):
         # TODO:Key check and restore
         pass
         # Cookie check and restore
         try:
             token = headers["Cookie"].split("token=")[1]
             try:
-                userStatus = ClientHelper.loadStatus(token)
-                return userStatus, token, False
+                user=ClientHelper.loadStatus(token)
+                return user,False
             except:
                 raise IOError
         except:
             # token not found or token
             token = ClientHelper.__generateToken__(clientInfo[0])
-            userStatus = {
-                "currentList": [], "knownInfo": {}, "history": [], "wantedInfo": "", "token": token}
-            return userStatus, token, True
+            user=UserObj.User()
+            user.token=token
+            return user,True
 
     @staticmethod
     def loadStatus(token):
@@ -77,18 +94,14 @@ class ClientHelper(object):
         logging.info(f"Client Restor from cookie token {token}")
 
         with open("./Cookies/"+filename+".json", "r", encoding="utf-8") as f:
-            connectionStatus = json.load(f)
-        return connectionStatus
-
+            user = pickle.load(f,encoding="utf8")
+        return user
     @staticmethod
-    def saveStatus(userStatus, token):
-        filename = str(token)
+    def saveStatus(userStatus):
+        filename = str(userStatus.token)
+        
         with open("./Cookies/"+filename+".json", "w", encoding="utf-8") as f:
-            json.dump(userStatus, f, ensure_ascii=False)
-
-    @staticmethod
-    def chat(message, userStatus):
-        return Chatbot.chat(message, userStatus)
+            pickle.dump(userStatus, f)
 
     @staticmethod
     def __generateToken__(ip):
@@ -105,40 +118,29 @@ class ClientHelper(object):
 
 
 async def wsHandler(websocket, path):
-    loop = asyncio.get_running_loop()
     header = websocket.request_headers
     clientInfo = websocket.remote_address
     try:
-        with concurrent.futures.ProcessPoolExecutor(2) as pool:
+        # Initinal or Restore client state
+        
 
-            # Initinal or Restore client state
-            userStatus, token, NewClient = await loop.run_in_executor(pool, ClientHelper.restoreUserStatus, header, clientInfo)
-            if NewClient:
-                await websocket.send(f"sys_token_{token}")
-                logging.debug(f"Initinal New Client with Token={token}")
-                result, userStatus = Chatbot.chat(None, userStatus)
-                await websocket.send(str(result)+"<br>")
+        user=await ClientHelper.botHandshake(header,clientInfo,websocket)
+        
+        async for message in websocket:
+            if message == "":
+                continue
+            logging.debug(f"Client:{user.token} Received Message:{message}")
+            #result,userStatus=await loop.run_in_executor(pool,Chatbot.chat,message,userStatus)
+            user.userUpdate(message)
+            
+            await Chatbot.chat(user)
+                        
+            await websocket.send(str({"Response":user.botSay.Response,"Metadata":user.botSay.Metadata}))
 
-            else:
-                history = userStatus["history"]
-                await websocket.send(f"sys_history_{history}")
-                logging.debug(f"Load Saved Client with Token={token}")
+        # Client Closed
 
-
-            async for message in websocket:
-                if message == "":
-                    continue
-                logging.debug(f"Client:{token} Received Message:{message}")
-                if message.find("sys_") == 0:
-                    # TODO:Handel command
-                    continue
-                result, userStatus=Chatbot.chat(message,userStatus)
-                await websocket.send(str(result))
-
-            # Client Closed
-
-            logging.debug(f"Client Closed with Token={token}")
-            ClientHelper.saveStatus(userStatus, token)
+        logging.debug(f"Client Closed with Token={user.token}")
+        ClientHelper.saveStatus(user)
 
     except:
         errormessage = traceback.format_exc()

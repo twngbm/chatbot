@@ -5,12 +5,15 @@ import os
 import csv
 import random
 import warnings
+import asyncio
 import time
 from ChatbotConfig import *
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 with warnings.catch_warnings():
     warnings.filterwarnings("ignore", category=FutureWarning)
     from ckiptagger import data_utils, construct_dictionary, WS, POS
+import nest_asyncio
+nest_asyncio.apply()
 
 __PATH__ = os.path.dirname(os.path.abspath(__file__))+"/"
 
@@ -43,7 +46,7 @@ for ITsys, ITsysItem in ITinfotable.items():
         ITsysItem["業務單位"]+"<br>業務負責人分機: "+ITsysItem["業務負責人分機"]+"<br>系統負責人: " + \
         ITsysItem["系統負責人"]+"<br>系統負責人分機: "+ITsysItem["系統負責人分機"]+"<br>"
     solutionList.append({"Feature": {"Keyword": {"InputParser": [
-        "CKIPParser"], "Key": ITsys}}, "Answer": ans, "Stop": True})
+        "intentParser"], "Key": ITsys}}, "Answer": ans, "Stop": True})
 
 
 logging.critical("Loading Question Table")
@@ -55,7 +58,7 @@ with open(__PATH__+QUESTION, "r", encoding="utf-8-sig") as q:
 logging.critical("Loading CKIP-Word Segmentation(WS)")
 ws = WS(__PATH__+CKIPDATA)
 logging.critical("Loading CKIP-Part-of-Speech(POS)")
-pos = POS(__PATH__+CKIPDATA)
+#pos = POS(__PATH__+CKIPDATA)
 
 
 class UndefineInput(Exception):
@@ -65,7 +68,7 @@ class UndefineInput(Exception):
 class Chatbot(object):
 
     @staticmethod
-    def chat(sentence, clientStatus):
+    async def chat(sentence, clientStatus):
 
         currentSolutionList = clientStatus["currentList"]
         knownInfo = clientStatus["knownInfo"]
@@ -85,7 +88,7 @@ class Chatbot(object):
             return Chatbot.__GetMessage__(wantedFeature), clientStatus
 
         history.append(sentence)
-
+        
         if wantedFeature == "isSolved":
             nextWantedFeature = Chatbot.__findWantedKey__(
                 currentSolutionList, knownInfo)
@@ -114,17 +117,18 @@ class Chatbot(object):
             for functionName in inputParser:
 
                 try:
-
                     preprocessor = getattr(Transformer, functionName)
-
                 except:
                     logging.error(
                         "No Function Named{fn}".format(fn=functionName))
                     raise NotImplementedError
                 try:
-
-                    processedData = preprocessor(processedData)
-
+                    #loop=asyncio.get_event_loop()
+                    processedData=await preprocessor(processedData)
+                    
+                    #processedData = preprocessor(processedData)
+                except TypeError:
+                    raise TypeError
                 except UndefineInput:
                     history.append(Chatbot.__GetMessage__(
                         wantedFeature, True)+"，或輸入restart以重新開始")
@@ -147,10 +151,11 @@ class Chatbot(object):
         knownInfo[wantedFeature] = sentence
 
         # Update currentSolutionList due to unMatchSolution
-
+        
         for i in unMatchSolution:
+            
             currentSolutionList.remove(i)
-
+        
         # No answer match, Asume user have wrong input
         if currentSolutionList == []:
             try:
@@ -166,7 +171,7 @@ class Chatbot(object):
                                   "knownInfo": knownInfo, "history": history, "wantedInfo": wantedFeature}
 
             return errorMessage, updateClientStatus
-
+        
         # Answer Finded
         elif len(currentSolutionList) == 1:
 
@@ -184,7 +189,7 @@ class Chatbot(object):
                 updateClientStatus = {
                     "currentList": unMatchSolution, "knownInfo": knownInfo, "history": history, "wantedInfo": "isSolved"}
                 return ansText, updateClientStatus
-
+        
         # Find Next Wanted Feature and Ask Question
         nextWantedFeature = Chatbot.__findWantedKey__(
             currentSolutionList, knownInfo)
@@ -233,7 +238,7 @@ class Transformer(object):
         pass
 
     @staticmethod
-    def CKIPParser(sentence):
+    async def CKIPParser(sentence):
 
         dictionary = construct_dictionary(encouragedDictionary)
         
@@ -241,8 +246,8 @@ class Transformer(object):
             sentence,
             recommend_dictionary=dictionary
         )
-
-        pos_sentence_list = pos(word_sentence_list)
+        
+        #pos_sentence_list = pos(word_sentence_list)
 
         for i, sentence in enumerate([sentence]):
             keyword = []
@@ -253,6 +258,7 @@ class Transformer(object):
             raise UndefineInput
         
         return keyword
+
     @staticmethod
     def LocationParser(feature):
         return feature
