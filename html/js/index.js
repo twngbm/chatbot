@@ -12,11 +12,10 @@ ws.onclose=function(event){
 ws.onerror = function (event) {
     console.log("error");
     getMessage("伺服器離線中，請嘗試重新連線。");
-    //location.reload();
 }
 ws.onmessage = function (event) {
     var message_received = event.data;
-    //console.log(message_received)
+    
     if (message_received.includes("sys_")) {
         if (message_received.includes("sys_token_")) {
             if (message_received.includes("sys_")) $.cookie("token", message_received.split("sys_token_")[1], { expires: 3 });
@@ -24,11 +23,6 @@ ws.onmessage = function (event) {
             return;
         }
         if(message_received.includes("sys_history_")){
-<<<<<<< HEAD
-            console.log(message_received.split("sys_history_")[1])
-=======
-            console.log(message_received.split("sys_history_")[1]);
->>>>>>> adcb4527efd3b180be05b7bafb09061612362fe9
 			restoreHistory(message_received.split("sys_history_")[1]);
         }
     }
