@@ -7,6 +7,7 @@ $(window).on('load',function () {
 });
 function init(){
   scro = $("#chat").mCustomScrollbar();
+  insertServerMsg("伺服器連線中，請稍後。",0);
 }
 
 //websocket
@@ -18,7 +19,7 @@ ws.onclose=function(event){
 };
 ws.onerror = function (event) {
   console.log("error");
-  insertServerMsg("伺服器離線中，請嘗試重新連線。");
+  insertServerMsg("伺服器離線中，請嘗試重新連線。",0);
 }
 ws.onmessage = function (event) {
   msg = JSON.parse(event.data);
