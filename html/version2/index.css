@@ -6,8 +6,14 @@ html, body{
 .container{
     height: inherit;
 }
+
+@media screen and (min-height: 700px) {
+  .div-row-8{
+      height: 80%; //modify to dynamic
+  }
+}
 .div-row-8{
-    height: 80%;
+    height: 80%; //modify to dynamic
 }
 .div-row-2{
     height: auto;
@@ -78,44 +84,6 @@ html, body{
     width: 100%;
     padding: 3px;
 }
-
-/* talk bubble contents */
-
-/*
-li.talktext-client{
-  list-style: none;
-  margin: 5px;
-  float: right;
-  background: #f8afaf;
-  padding: .5em;
-  text-align: left;
-  line-height: 1.5em;
-  border-radius: .5em;
-  width: fit-content;
-  max-width: 70%;
-  word-break: normal;
-  position: relative; //fucntion ?
-}
-.talktext-client .talktext-server p{
-  -webkit-margin-before: 0em;
-  -webkit-margin-after: 0em;
-}
-
-li.talktext-server{
-  list-style: none;
-  margin: 5px;
-  float: left;
-  background: #cfcfcf;
-  padding: .5em;
-  text-align: left;
-  line-height: 1.5em;
-  border-radius: .5em;
-  width: fit-content;
-  max-width: 70%;
-  word-break: normal;
-  position: relative; //fucntion ?
-}
-*/
 
 
 /* Basic List Styling */
@@ -428,14 +396,40 @@ Bounce
     }
 }
 
-/* ul clickable */
-.sys_ul{
-  cursor: pointer;
-  width: 180px;
-  max-height: 50%;
-  height: 40px;
-  border-bottom: 1px solid #eee;
-  text-align: center;
-  line-height: 40px;
+
+li button{
+  width: 100%;
+  border: none;
+  background: #f8afaf;
+  max-width: 100%;
+  //text-align: left;
+  border-radius: 10px;
+}
+
+li button:hover{
+  background: #FF6A6A;
+  color: white;
+}
+
+li button:active{
+  background-color: #FF6A6A;
+  box-shadow: 0 5px #666;
+  transform: translateY(4px);
+}
+
+#sys_btn button{
+  //display: inline-block;
+  border-radius: 10px;
+}
+
+.btn-sys-div{
+  max-height: 15%;
+  line-height: 50px;
+  text-align: right;
+  margin: 0 3px 0 0;
+}
+
+#sys_btn button:hover{
+  background:#d8ffff;
 }
 
