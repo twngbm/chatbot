@@ -5,7 +5,7 @@
     {"UserDomain":{"Question":["請問您的身分為?"],"Exception":["請輸入:<br>本校師生<br>本校校友<br>他校師生<br>一般民眾"]}},
     {"isSolved":{"Question":["<br>請問問題是否有解決?"],"Exception":["請回答是/否"]}},
     {"EndMessage":{"Question":["感謝使用，如問題尚無解決請聯絡計網中心61010<br>請問有其他問題嗎?"],"Exception":[""]}},
-    {"VPNQD":{"Question":["請問在VPN[安裝|使用]上哪一個部分的問題?"],"Exception":["請輸入安裝/使用"]}},
+    {"VPNQD":{"Question":["請問在VPN[安裝使用|登入]上哪一個部分的問題?"],"Exception":["請輸入安裝/使用"]}},
     {"inckuQD":{"Question":["請問在成功入口使用上有什麼問題?"],"Exception":["請輸入<br>忘記密碼<br>預設密碼無法登入"]}},
     {"MailUserID":{"Question":["請問您的身分為?"],"Exception":["請輸入:<br>教職員<br>學生<br>校友"]}},
     {"staff_mail_type":{"Question":["請問您使用的信箱為何?"],"Exception":["請輸入<br>個人用信箱<br>公務用信箱<br>Gsuit"]}},
@@ -13,5 +13,6 @@
     {"mail_qd":{"Question":["請問您的問題為何?"],"Exception":["無法判斷問題，請重新選擇"]}},
     {"Unbounded":{"Question":["親，猜測您想:<br>"],"Exception":["無法判斷問題，請重新選擇"]}},
     {"OSversion":{"Question":["請輸入您的作業系統或裝置"],"Exception":["無法判斷問題，請重新選擇"]}},
-    {"Checklist":{"Question":["請參考以下說明，或點選說明進入詳細參考資料。<br>"],"Exception":["無法判斷問題，請重新選擇"]}}
+    {"Checklist":{"Question":["請參考以下說明，或點選說明進入詳細參考資料。<br>"],"Exception":["無法判斷問題，請重新選擇"]}},
+    {"InputError":{"Question":["請勿自行修改輸入，請點選以下選項<br>"],"Exception":["無法判斷問題，請重新選擇"]}}
 ]

@@ -1,7 +1,7 @@
 import logging
 import time
 import os
-from ChatbotConfig import *
+from ChatbotConfig import WEBSOCKETPORT, jwtKey
 import jwt
 import json
 import asyncio
@@ -17,15 +17,16 @@ nest_asyncio.apply()
 #import multiprocessing
 #multiprocessing.set_start_method('fork', True)
 
-#TODO：Multi processing websocket werver
+# TODO：Multi processing websocket werver
 ###################################
 # connectionClient={}
 # {(ip,port):{"currentRoot":<tree_node>,"knownInfo":{"ID":"Q36061020",}},}
 ###################################
 
+
 def init():
     global Chatbot
-    
+
     loglevel = os.getenv('LOG', "INFO")
     if loglevel == "DEBUG":
         LOG_LEVEL = logging.DEBUG
@@ -53,21 +54,20 @@ def init():
 class ClientHelper(object):
 
     @staticmethod
-    async def botHandshake(header, clientInfo, websocket)->UserObj.User:
-        user,NewClient = await ClientHelper.restoreUserStatus(header, clientInfo)
-        if NewClient:
-            await websocket.send(f"sys_token_{user.token}")
+    async def botHandshake(header, clientInfo, websocket) -> UserObj.User:
+        user, NewClient = await ClientHelper.restoreUserStatus(header, clientInfo)
+        if NewClient!=None:
+            await websocket.send(json.dumps({"Response": "sys_token", "Metadata": user.token}))
+            await websocket.send(json.dumps({"Response": "sys_key", "Metadata": NewClient}))
             logging.debug(f"Initinal New Client with Token={user.token}")
-            user.userUpdate("raw_restart")
+            user.userUpdate('{"DataType":"sys","Data":"restart"}')
             await Chatbot.chat(user)
-            #result, userStatus=await Chatbot.chat(None,userStatus)
-            #result,userStatus=await loop.run_in_executor(pool,Chatbot.chat,None,userStatus)
-            await websocket.send(str({"Response":user.botSay.Response,"Metadata":None}))
+            await websocket.send(user.sendbackMessage)
         else:
             history = user.chatHistory
-            await websocket.send(f"sys_history_{history}")
+            await websocket.send(json.dumps({"Response": "sys_history", "Metadata": history}))
             logging.debug(f"Load Saved Client with Token={user.token}")
-        
+        return user
 
     @staticmethod
     async def restoreUserStatus(headers, clientInfo):
@@ -77,30 +77,32 @@ class ClientHelper(object):
         try:
             token = headers["Cookie"].split("token=")[1]
             try:
-                user=ClientHelper.loadStatus(token)
-                return user,False
+                user = ClientHelper.loadStatus(token)
+                return user, None
             except:
                 raise IOError
         except:
             # token not found or token
             token = ClientHelper.__generateToken__(clientInfo[0])
-            user=UserObj.User()
-            user.token=token
-            return user,True
+            user = UserObj.User()
+            user.token = token
+            restoreKey=ClientHelper.__genetatrKey__()
+            return user, restoreKey
 
     @staticmethod
     def loadStatus(token):
         filename = str(token)
         logging.info(f"Client Restor from cookie token {token}")
 
-        with open("./Cookies/"+filename+".json", "r", encoding="utf-8") as f:
-            user = pickle.load(f,encoding="utf8")
+        with open("./Cookies/"+filename+".json", "rb") as f:
+            user = pickle.load(f, encoding="utf8")
         return user
+
     @staticmethod
     def saveStatus(userStatus):
-        filename = str(userStatus.token)
-        
-        with open("./Cookies/"+filename+".json", "w", encoding="utf-8") as f:
+        filename = userStatus.token
+
+        with open("./Cookies/"+filename+".json", "wb") as f:
             pickle.dump(userStatus, f)
 
     @staticmethod
@@ -112,9 +114,14 @@ class ClientHelper(object):
             "ip": ip
         }
 
-        token = jwt.encode(payload, jwtKey, algorithm='HS256')
+        token = jwt.encode(payload, jwtKey, algorithm='HS256').decode("utf-8")
+
         return token
 
+    @staticmethod
+    def __genetatrKey__():
+        #exitKey=os.listdir("")
+        return "0000"
 
 
 async def wsHandler(websocket, path):
@@ -122,26 +129,35 @@ async def wsHandler(websocket, path):
     clientInfo = websocket.remote_address
     try:
         # Initinal or Restore client state
-        
 
-        user=await ClientHelper.botHandshake(header,clientInfo,websocket)
-        
+        user = await ClientHelper.botHandshake(header, clientInfo, websocket)
+
         async for message in websocket:
-            if message == "":
-                continue
             logging.debug(f"Client:{user.token} Received Message:{message}")
-            #result,userStatus=await loop.run_in_executor(pool,Chatbot.chat,message,userStatus)
-            user.userUpdate(message)
-            
-            await Chatbot.chat(user)
-                        
-            await websocket.send(str({"Response":user.botSay.Response,"Metadata":user.botSay.Metadata}))
+            try:
+                user.userUpdate(message)
+            except TypeError:
+                errormessage = traceback.format_exc()
+                logging.error(errormessage)
+                continue
+
+            try:
+                await Chatbot.chat(user)
+            except NotImplementedError:
+                errormessage = traceback.format_exc()
+                logging.error(errormessage)
+                continue
+            except TypeError:
+                errormessage = traceback.format_exc()
+                logging.error(errormessage)
+                continue
+
+            await websocket.send(user.sendbackMessage)
 
         # Client Closed
 
         logging.debug(f"Client Closed with Token={user.token}")
         ClientHelper.saveStatus(user)
-
     except:
         errormessage = traceback.format_exc()
         logging.error(errormessage)

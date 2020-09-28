@@ -1,33 +1,53 @@
+import json
+import logging
+
+
 class User(object):
     def __init__(self):
-        self.currentNode={}
+        self.currentNode = {}
         # TODO:Previous Step
-        #self.path=[]
-        self.chatHistory=[]
-        self.token=None
-        self.botSay=botWant()
-        self.userSay=userSay()#type=[control,raw,checked]
-        self.recursive=[]
-        self.otp=None#Restore Key
-    def botUpdate(self,feature,response,metadate=None):
-        self.botSay.WantedFeature=feature
-        self.botSay.Response=response
+        # self.path=[]
+        self.chatHistory = []
+        self.token = None
+        self.botSay = botWant()
+        self.userSay = userSay()  # type=[control,raw,checked]
+        self.recursive = []
+        self.sendbackMessage = None
+        self.otp = None  # Restore Key
+
+    def botUpdate(self, feature, response, metadate=None):
+        self.botSay.WantedFeature = feature
+        self.botSay.Response = response
         self.chatHistory.append(response)
-        self.botSay.Metadata=metadate
-    def userUpdate(self,message:str):
-        for prefix in ["clicked_","raw_","sys_"]:
-            if message.find(prefix)==0:
-                self.userSay.Message=message.split(prefix)[1]
-                self.userSay.Type=prefix[:-1]
-                if prefix!="sys_":
-                    self.chatHistory.append(self.userSay.Message)
-                break
+        self.botSay.Metadata = metadate
+        self.sendbackMessage = json.dumps(
+            {"Response": self.botSay.Response, "Metadata": self.botSay.Metadata})
+
+    def userUpdate(self, inputData: str):
+
+        try:
+            data = json.loads(inputData)
+            logging.info(data)
+        except:
+            raise TypeError
+
+        if data["DataType"] not in ["raw", "sys", "clicked"]:
+            raise TypeError
+        if data["Data"] == "":
+            raise TypeError
+
+        self.userSay.Message = data["Data"]
+        self.userSay.Type = data["DataType"]
+
+
 class botWant(object):
     def __init__(self):
-        self.WantedFeature=None
-        self.Response=None
-        self.Metadata=None
+        self.WantedFeature = None
+        self.Response = None
+        self.Metadata = None
+
+
 class userSay(object):
     def __init__(self):
-        self.Type=None
-        self.Message=None
+        self.Type = None
+        self.Message = None

@@ -75,11 +75,9 @@ class Chatbot(object):
     async def chat(self, User: UserObj.User):
 
         # Restart Chat or Initinal Chat
-        if User.chatHistory == [] or User.userSay.Message == "restart":
+        if User.chatHistory == []:
             User.currentNode = copy.deepcopy(solutionList)
-            wantedFeature = "Keyword"
-            featureMessage = self.__GetMessage__(wantedFeature)
-            User.botUpdate(wantedFeature, featureMessage)
+            User.botUpdate("Keyword", self.__GetMessage__("Keyword"))
             return
 
         # Find out User Intent or Feature
@@ -87,19 +85,17 @@ class Chatbot(object):
             # Handle System Control Message
 
             # TODO:Previous Step
-            # if User.userSay.Message=="previous":#Back to Pervious Step
-            #    User.path.pop()
-            #    pass
-            if User.userSay.Message == "return":
+            if User.userSay.Message == "previous":  # Back to Pervious Step
+                #    User.path.pop()
+                raise NotImplementedError
+            elif User.userSay.Message == "return":
                 # Return to Upper Recursive
 
                 if User.recursive == []:
                     # When we don't have any preserved recursive Ckecklist
                     # We just simply restart chat.
                     User.currentNode = copy.deepcopy(solutionList)
-                    wantedFeature = "Keyword"
-                    featureMessage = self.__GetMessage__(wantedFeature)
-                    User.botUpdate(wantedFeature, featureMessage)
+                    User.botUpdate("Keyword", self.__GetMessage__("Keyword"))
                     return
                 else:
                     # When we have preserved recursive Checklist.
@@ -115,10 +111,12 @@ class Chatbot(object):
             elif User.userSay.Message == "restart":
                 # Restart Chat(Initinal State)
                 User.currentNode = copy.deepcopy(solutionList)
-                wantedFeature = "Keyword"
-                featureMessage = self.__GetMessage__(wantedFeature)
-                User.botUpdate(wantedFeature, featureMessage)
+                User.botUpdate("Keyword", self.__GetMessage__("Keyword"))
                 return
+
+            else:
+                logging.error(f"Error Sys Command Name{User.userSay.Message}")
+                raise TypeError
 
         elif User.userSay.Type == "raw":
             # User Input via Text
@@ -131,7 +129,7 @@ class Chatbot(object):
             if User.botSay.WantedFeature == "Checklist" and len(UserIntent) >= 1:
                 # If it in Checklist state, pick the hightest score one of current candidate list
                 # Just for convience.
-                UserIntent = [UserIntent[0]]
+                VeryUserIntent = UserIntent[0]
             elif len(UserIntent) > 1:
                 # If it NOT in Checklist state and there is more than one intent, ask user again
                 # without changing state
@@ -143,13 +141,18 @@ class Chatbot(object):
                 # If we can't find any intent inside our list, just ask the same question again
                 # without changing state
                 User.botUpdate(User.botSay.WantedFeature,
-                               self.__GetMessage__("Keyword", True), None)
+                               self.__GetMessage__(User.botSay.WantedFeature, True), None)
                 return
+            else:
+                VeryUserIntent=UserIntent[0]
         elif User.userSay.Type == "clicked":
             # User Input via Picked One in List
-            UserIntent = [User.userSay.Message]
+            candidateList = [*User.currentNode[User.botSay.WantedFeature]]
+            if User.userSay.Message not in candidateList:
+                raise TypeError
+            VeryUserIntent = User.userSay.Message
 
-        logging.info(f"Intent Found:{UserIntent}")
+        logging.info(f"Intent Found:{VeryUserIntent}")
 
         # Goto Next Stage
         # aka Feature State
@@ -159,7 +162,8 @@ class Chatbot(object):
 
         # newNode=oldnode[WantedFeatureName][Feature]
         # Feature was founded on the above code.
-        newNode = User.currentNode[User.botSay.WantedFeature][UserIntent[0]]
+
+        newNode = User.currentNode[User.botSay.WantedFeature][VeryUserIntent]
 
         if type(newNode) == str:
             # If and only if we are in checklist state and client pick an item on list will this condition be true
@@ -188,20 +192,26 @@ class Chatbot(object):
             User.botUpdate(wantedFeature, self.__GetMessage__(
                 wantedFeature), [*tempSolution[wantedFeature]])
             return
-        elif "Checklist" in newNode:
-            # We Now reach leaf node. Now we are in checklist state
-            # Treat it as normal node
+        
+        else:
+            # There will be **Three** condition that user enter this block
+            # A. Selecting in Intent State
+            # B. Running in Feature State 
+            # C. Entering Checklist State
+            # The two above blocks are handling **Inside** Checklist State
+
+            # A. Intent State
+            # When User say it first sentent and we found the very intent that user want.
+            # We selecting one cluster or one sub-tree, hance entering Feature State
+            
+            # B. Feature State
+            # We want to find deeper feature so that we can go to leaf node
+            # Just update user.currentNode with newnode and user.botsay.WantedFeature with new wanted feature
+            
+            # C. Checklist State
+            # When we reach leaf node. We are **Entering** checklist state.
             # We'll Show the information that need to be check aka. Checklist
             # Ckecklist state will be last as long as User.botSay.WantedFeature=="Checklist"
-            User.botUpdate("Checklist", self.__GetMessage__(
-                "Checklist"), [*newNode["Checklist"]])
-            User.currentNode = newNode
-            return
-        else:
-            # Feature State
-            # We now want to find deeper feature so that we can go to leaf node
-            # Just update user.currentNode with newnode and user.botsay.WantedFeature with new wanted feature
-
             newwantedFeature = [*newNode][0]
             response = self.__GetMessage__(newwantedFeature)
             selectList = [*newNode[newwantedFeature]]
