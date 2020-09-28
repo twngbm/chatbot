@@ -13,12 +13,11 @@ class User(object):
         self.userSay = userSay()  # type=[control,raw,checked]
         self.recursive = []
         self.sendbackMessage = None
-        self.otp = None  # Restore Key
-
+        self.key = None  # Restore Key
     def botUpdate(self, feature, response, metadate=None):
         self.botSay.WantedFeature = feature
         self.botSay.Response = response
-        self.chatHistory.append(response)
+        self.chatHistory.append([response,"Server"])
         self.botSay.Metadata = metadate
         self.sendbackMessage = json.dumps(
             {"Response": self.botSay.Response, "Metadata": self.botSay.Metadata})
@@ -38,6 +37,7 @@ class User(object):
 
         self.userSay.Message = data["Data"]
         self.userSay.Type = data["DataType"]
+        self.chatHistory.append([self.userSay.Message,"Client"])
 
 
 class botWant(object):

@@ -14,5 +14,11 @@
     {"Unbounded":{"Question":["親，猜測您想:<br>"],"Exception":["無法判斷問題，請重新選擇"]}},
     {"OSversion":{"Question":["請輸入您的作業系統或裝置"],"Exception":["無法判斷問題，請重新選擇"]}},
     {"Checklist":{"Question":["請參考以下說明，或點選說明進入詳細參考資料。<br>"],"Exception":["無法判斷問題，請重新選擇"]}},
-    {"InputError":{"Question":["請勿自行修改輸入，請點選以下選項<br>"],"Exception":["無法判斷問題，請重新選擇"]}}
+    {"InputError":{"Question":["請勿自行修改輸入，請點選以下選項<br>"],"Exception":["無法判斷問題，請重新選擇"]}},
+    {"SysNewKey":{"Question":["請妥善保管以下金鑰:<br>"],"Exception":["無法判斷問題，請重新選擇"]}},
+    {"SysExpiryKey":{"Question":["您輸入的金鑰已過期"],"Exception":["無法判斷問題，請重新選擇"]}},
+    {"SysWrongKey":{"Question":["您輸入的金鑰不存在"],"Exception":["無法判斷問題，請重新選擇"]}},
+    {"SysFindToken":{"Question":["在您瀏覽器中找到歷史紀錄，是否還原?"],"Exception":["無法判斷問題，請重新選擇"]}},
+    {"SysMissToken":{"Question":["未在您瀏覽器中找到歷史紀錄。"],"Exception":["無法判斷問題，請重新選擇"]}},
+    {"SysExpiryToken":{"Question":["在您瀏覽器中儲存之紀錄已過期。"],"Exception":["無法判斷問題，請重新選擇"]}}
 ]

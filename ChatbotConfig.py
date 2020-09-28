@@ -1,6 +1,9 @@
 #Server Setup
 WEBSOCKETPORT = 8080
 jwtKey = 'rteschatbotsecret'
+CLIENT_PATH = '/Client/'
+EXPIRE_TIME = 604800 # Seconds
+
 
 # Ckip Data Path
 # Relative Path to chatcore.py

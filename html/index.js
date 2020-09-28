@@ -21,14 +21,18 @@ ws.onerror = function (event) {
   if(ws.url == "ws://140.116.72.242:8080") insertServerMsg("伺服器離線中，請嘗試重新連線。",0);
 }
 ws.onmessage = function (event) {
+  
   msg = JSON.parse(event.data);
+  //console.log(msg);
   var res = (msg.Response).split("sys_");
   var metadata = msg.Metadata;
   if( res.length != 1 ){ //sys 1. history 2. token
     if (res[1] == "history") restoreHistory(metadata);
     if (res[1] == "token") $.cookie('token', metadata, { expires: 7, path: '/' });
+    //if (res[1] == "key") insertServerMsg("請妥善保管以下金鑰:<br>".concat(metadata),0);
+    //if (res[1] == "message") insertServerMsg(metadata,0);
   }else{ // 1. one-line 2. list
-    if(metadata == "None"){
+    if(!metadata){
       insertServerMsg(res[0],0);
     }else{
       insertServerMsg(res[0],metadata);
@@ -73,8 +77,8 @@ function getDate(){
 $(document).ready(function(){
   $('#send').click(function () {
     inputMsg = $('#inputText').val();
-    if(isInteger(parseInt(inputMsg)) && parseInt(inputMsg) < 10000){
-      $.cookie('key',inputMsg);
+    if(Number.isInteger(parseInt(inputMsg)) && parseInt(inputMsg) < 10000){
+      //$.cookie('key',inputMsg);
       insertClientMsg(inputMsg,"sys_key");
     }else if(inputMsg != ""){
       insertClientMsg(inputMsg,"raw");
@@ -85,8 +89,8 @@ $(document).ready(function(){
     if(event.keyCode == 13) {
       event.preventDefault();
       inputMsg = $('#inputText').val();
-      if(isInteger(parseInt(inputMsg)) && parseInt(inputMsg) < 10000){
-        $.cookie('key',inputMsg);
+      if(Number.isInteger(parseInt(inputMsg)) && parseInt(inputMsg) < 10000){
+        //$.cookie('key',inputMsg);
         insertClientMsg(inputMsg,"sys_key");
       }else if(inputMsg != ""){
         insertClientMsg(inputMsg,"raw");
@@ -100,7 +104,7 @@ document.getElementById('chatBlock').addEventListener('click',(e)=>{
   var clickMsg = (e.target.getAttribute('data-opnum'));
   if (clickMsg == null) return;
   if (clickMsg == "start"){
-    insertClientMsg("開始對話","raw");
+    insertClientMsg("start","sys");
     return;
   }
   insertClientMsg(clickMsg,"clicked");
@@ -114,8 +118,11 @@ document.getElementById('sys_btn').addEventListener('click',(e)=>{
 })
 
 function restoreHistory(metadata){
-  for (var i = 0 ; i < metadata.length; i+=2) {
-    insertServerMsg(metadata[i],0);
-    insertClientMsg(metadata[i+1],0);
+    
+  for (var i = 0 ; i < metadata.length; i+=1) {
+    if (metadata[i][1]=="Client") insertClientMsg(metadata[i][0],0);
+    else if (metadata[i][1]=="Server") insertServerMsg(metadata[i][0],0);
+    else console.log("ERROR");
+    
   }
 }
