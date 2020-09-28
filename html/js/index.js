@@ -1,5 +1,5 @@
 //from index.js
-var ws = new WebSocket("ws://140.116.72.242:8080");
+var ws = new WebSocket("ws://140.116.72.233:8000");
 var pic = "img/messageImage_1596638102086.jpg";
 var token;
 var hasToken = false;
@@ -33,13 +33,14 @@ ws.onmessage = function (event) {
 
 var $messages = $('.messages-content'),
     d, h, m;
-
+console.log($messages);
 $(window).load(function () {
     $messages.mCustomScrollbar();
     speechInit();
 });
 
 function updateScrollbar() {
+    console.log($messages);
     $messages.mCustomScrollbar("update").mCustomScrollbar('scrollTo', 'bottom', {
         scrollInertia: 10,
         timeout: 0
