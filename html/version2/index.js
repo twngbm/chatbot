@@ -7,19 +7,18 @@ $(window).on('load',function () {
 });
 function init(){
   scro = $("#chat").mCustomScrollbar();
-  insertServerMsg("伺服器連線中，請稍後。",0);
 }
 
-//websocket
+  
 ws.onopen = function (event) {
     console.log("Open websocket");
-}
+}  
+
 ws.onclose=function(event){
     console.log("Close Websocket");
 };
 ws.onerror = function (event) {
-  console.log("error");
-  insertServerMsg("伺服器離線中，請嘗試重新連線。",0);
+  if(ws.url == "ws://140.116.72.242:8080") insertServerMsg("伺服器離線中，請嘗試重新連線。",0);
 }
 ws.onmessage = function (event) {
   msg = JSON.parse(event.data);
@@ -74,7 +73,10 @@ function getDate(){
 $(document).ready(function(){
   $('#send').click(function () {
     inputMsg = $('#inputText').val();
-    if(inputMsg != ""){
+    if(isInteger(parseInt(inputMsg)) && parseInt(inputMsg) < 10000){
+      $.cookie('key',inputMsg);
+      insertClientMsg(inputMsg,"sys_key");
+    }else if(inputMsg != ""){
       insertClientMsg(inputMsg,"raw");
       $('#inputText').val(null);
     }
@@ -83,7 +85,10 @@ $(document).ready(function(){
     if(event.keyCode == 13) {
       event.preventDefault();
       inputMsg = $('#inputText').val();
-      if(inputMsg != ""){
+      if(isInteger(parseInt(inputMsg)) && parseInt(inputMsg) < 10000){
+        $.cookie('key',inputMsg);
+        insertClientMsg(inputMsg,"sys_key");
+      }else if(inputMsg != ""){
         insertClientMsg(inputMsg,"raw");
         $('#inputText').val(null);
       }
@@ -94,6 +99,10 @@ $(document).ready(function(){
 document.getElementById('chatBlock').addEventListener('click',(e)=>{
   var clickMsg = (e.target.getAttribute('data-opnum'));
   if (clickMsg == null) return;
+  if (clickMsg == "start"){
+    insertClientMsg("開始對話","raw");
+    return;
+  }
   insertClientMsg(clickMsg,"clicked");
 })
 
@@ -108,4 +117,5 @@ function restoreHistory(metadata){
   for (var i = 0 ; i < metadata.length; i+=2) {
     insertServerMsg(metadata[i],0);
     insertClientMsg(metadata[i+1],0);
+  }
 }
