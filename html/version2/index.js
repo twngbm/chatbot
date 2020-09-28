@@ -62,7 +62,11 @@ function insertServerMsg(msg,md){
 }
 function insertClientMsg(msg,type){
   $('<li class="right-msg">' + msg + '</li>').appendTo($('#chatBlock'));
+<<<<<<< HEAD
   if(type != 0) wsend(msg,type);
+=======
+  wsend(msg,type);
+>>>>>>> ffd2608c33a820cc4915e20a9f74e620840f4d06
   updateScrollbar();
 }
 
@@ -104,8 +108,13 @@ document.getElementById('sys_btn').addEventListener('click',(e)=>{
 })
 
 function restoreHistory(metadata){
+<<<<<<< HEAD
   for (var i = 0 ; i < metadata.length; i+=2) {
     insertServerMsg(metadata[i],0);
     insertClientMsg(metadata[i+1],0);
+=======
+  for (var i = 0 ; i < metadata.length; i++) {
+
+>>>>>>> ffd2608c33a820cc4915e20a9f74e620840f4d06
   }
 }
