@@ -50,7 +50,6 @@ def init():
 
     Chatbot = cc.Chatbot()
     logging.critical("Chatbot Core Initinal Done")
-    
     logging.critical("Load Key_Cookie Pair")
 
     try:

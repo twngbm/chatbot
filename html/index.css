@@ -159,6 +159,8 @@ ul.rounded-messages li.left-msg {
   float: left;
   color: #292929;
   background: #E3E2DF;
+  animation-name: flyIn;
+  animation-duration: 0.25s;
 }
 
 ul.rounded-messages li:not(.right-msg)::before,
@@ -173,10 +175,21 @@ ul.rounded-messages li.left-msg::before {
 }
 
 /* Right Message Bubble */
-ul.rounded-messages li.right-msg {
+ul.rounded-messages li.right-msg{
   float: right;
   color: #F8F8F8;
   background: #f8afaf;
+  animation-name: flyIn;
+  animation-duration: 0.25s;
+}
+
+@keyframes flyIn{
+  0%{ 
+   transform: translateY(200%);
+  }
+  100%{ 
+    transform: translateY(0%); 
+  }
 }
 
 ul.rounded-messages li.right-msg::before {
@@ -225,7 +238,6 @@ ul.rounded-messages li.time-left {
   text-align: left;
   color: #555555;
 }
-
 
 @media screen and (max-width: 500px) {
   /* Fit the screen for all chats */
