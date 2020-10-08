@@ -102,6 +102,7 @@ class Chatbot(object):
                     # We pop the last Checklist from User.recursive
                     # This is the previous Checklist ,the one which before we enter current recursive
                     # We than simply restore it state.
+
                     outer = User.recursive.pop()
                     User.currentNode = outer
                     User.botUpdate("Checklist", self.__GetMessage__(
@@ -144,7 +145,7 @@ class Chatbot(object):
                                self.__GetMessage__(User.botSay.WantedFeature, True), None)
                 return
             else:
-                VeryUserIntent=UserIntent[0]
+                VeryUserIntent = UserIntent[0]
         elif User.userSay.Type == "clicked":
             # User Input via Picked One in List
             candidateList = [*User.currentNode[User.botSay.WantedFeature]]
@@ -192,22 +193,22 @@ class Chatbot(object):
             User.botUpdate(wantedFeature, self.__GetMessage__(
                 wantedFeature), [*tempSolution[wantedFeature]])
             return
-        
+
         else:
             # There will be **Three** condition that user enter this block
             # A. Selecting in Intent State
-            # B. Running in Feature State 
+            # B. Running in Feature State
             # C. Entering Checklist State
             # The two above blocks are handling **Inside** Checklist State
 
             # A. Intent State
             # When User say it first sentent and we found the very intent that user want.
             # We selecting one cluster or one sub-tree, hance entering Feature State
-            
+
             # B. Feature State
             # We want to find deeper feature so that we can go to leaf node
             # Just update user.currentNode with newnode and user.botsay.WantedFeature with new wanted feature
-            
+
             # C. Checklist State
             # When we reach leaf node. We are **Entering** checklist state.
             # We'll Show the information that need to be check aka. Checklist

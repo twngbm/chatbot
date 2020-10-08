@@ -22,7 +22,6 @@ nest_asyncio.apply()
 
 
 def init():
-
     global Chatbot
     global key_cookie
     global cookie_key
@@ -71,13 +70,8 @@ def init():
         key_cookie = {1000: None}
         cookie_key = {}
 
-    
-
-    
-
 
 class ClientHelper(object):
-
     @staticmethod
     async def botHandshake(header, clientInfo, websocket, message, user) -> UserObj.User:
 
@@ -158,7 +152,6 @@ class ClientHelper(object):
         await websocket.send(user.sendbackMessage)
         return user
 
-
     @staticmethod
     async def restoreUserStatus(headers, clientInfo):
         # TODO:Key check and restore
@@ -190,9 +183,9 @@ class ClientHelper(object):
         user.token = token
         user.key = restoreKey
         logging.info(f"Initinal New Client with Key={user.key}")
-        
+
         user.userUpdate('{"DataType":"sys","Data":"restart"}')
-        
+
         return user
 
     @staticmethod
@@ -207,14 +200,14 @@ class ClientHelper(object):
     @staticmethod
     def saveStatus(userStatus):
         filename = userStatus.token
-        key_cookie[userStatus.key]["Expiry"]=int(time.time()+EXPIRE_TIME)
+        key_cookie[userStatus.key]["Expiry"] = int(time.time()+EXPIRE_TIME)
         with open("./"+CLIENT_PATH+"/Cookies/"+filename+".pkl", "wb") as f:
             pickle.dump(userStatus, f)
 
     @staticmethod
     def keyCheck(key):
         try:
-            key=int(key)
+            key = int(key)
             cookieData = key_cookie[key]
         except:
             return None
@@ -223,7 +216,7 @@ class ClientHelper(object):
         if time.time() > int(cookieData["Expiry"]):
             return "Expiry"
         return cookieData["Token"]
-    
+
     @staticmethod
     def tokenCheck(headers):
         try:
@@ -234,16 +227,15 @@ class ClientHelper(object):
             return None
         if time.time() > int(cookieData["Expiry"]):
             cookie_key.pop(token, None)
-            key_cookie.pop(key,None)
+            key_cookie.pop(key, None)
 
             try:
                 os.remove("./"+CLIENT_PATH+"Cookies/"+token)
             except:
                 pass
-            
+
             return "Expiry"
         return token
-
 
     @staticmethod
     def __generateToken__(ip):
