@@ -7,11 +7,13 @@ $(window).on('load', function () {
 });
 function init() {
     scro = $("#chat").mCustomScrollbar();
+
 }
 
 
 ws.onopen = function (event) {
     console.log("Open websocket");
+    wsend("restart", "sys");
 }
 
 ws.onclose = function (event) {
@@ -23,6 +25,7 @@ ws.onerror = function (event) {
 ws.onmessage = function (event) {
 
     msg = JSON.parse(event.data);
+    console.log(msg);
     var res = (msg.Response).split("sys_");
     var metadata = msg.Metadata;
     if (res.length != 1) { //sys 1. history 2. token

@@ -74,83 +74,91 @@ def init():
 class ClientHelper(object):
     @staticmethod
     async def botHandshake(header, clientInfo, websocket, message, user) -> UserObj.User:
-
-        try:
-            message = json.loads(message)
-            DataType = message["DataType"]
-            Data = message["Data"]
-        except:
-            raise TypeError
-
-        if DataType == "raw" and Data != "是":
-            user = ClientHelper.createNewUser(clientInfo[0], websocket)
-            await websocket.send(json.dumps({"Response": "sys_token", "Metadata": user.token}))
-            await websocket.send(json.dumps({"Response": Chatbot.__GetMessage__("SysNewKey")+str(user.key), "Metadata": None}))
-            await Chatbot.chat(user)
-            user.userUpdate(json.dumps(message))
-            await Chatbot.chat(user)
-            await websocket.send(user.sendbackMessage)
-            return user
-        elif DataType == "sys_key":
-            keyToken = ClientHelper.keyCheck(Data)
-
-            if not keyToken:
-                await websocket.send(json.dumps({"Response": Chatbot.__GetMessage__("SysWrongKey"), "Metadata": None}))
-
-            elif keyToken == "Expiry":
-                await websocket.send(json.dumps({"Response": Chatbot.__GetMessage__("SysExpiryKey"), "Metadata": None}))
-
-            else:
-                try:
-                    user = ClientHelper.loadStatus(keyToken)
-                    await websocket.send(json.dumps({"Response": "sys_token", "Metadata": user.token}))
-                    await websocket.send(json.dumps({"Response": "sys_history", "Metadata": user.chatHistory}))
-                    logging.debug(f"Load Saved Client with Token={user.token}")
-                except:
-                    user = ClientHelper.createNewUser(clientInfo[0], websocket)
-                    await websocket.send(json.dumps({"Response": "sys_token", "Metadata": user.token}))
-                    await websocket.send(json.dumps({"Response": Chatbot.__GetMessage__("SysNewKey")+str(user.key), "Metadata": None}))
-                    await Chatbot.chat(user)
-                    await websocket.send(user.sendbackMessage)
-                return user
-
-        elif DataType == "sys" and Data == "start":
-            # Try to find token
-            pass
-
-        elif type(user) == str:
-            if Data == "是":
-                try:
-                    user = ClientHelper.loadStatus(user)
-                    await websocket.send(json.dumps({"Response": "sys_history", "Metadata": user.chatHistory}))
-                    logging.debug(f"Load Saved Client with Token={user.token}")
-                    return user
-                except:
-                    pass
-            user = ClientHelper.createNewUser(clientInfo[0], websocket)
-            await websocket.send(json.dumps({"Response": "sys_token", "Metadata": user.token}))
-            await websocket.send(json.dumps({"Response": Chatbot.__GetMessage__("SysNewKey")+str(user.key), "Metadata": None}))
-            await Chatbot.chat(user)
-            await websocket.send(user.sendbackMessage)
-            return user
-
-        headerToken = ClientHelper.tokenCheck(header)
-
-        if not headerToken:
-            await websocket.send(json.dumps({"Response": Chatbot.__GetMessage__("SysMissToken"), "Metadata": None}))
-
-        elif headerToken == "Expiry":
-            await websocket.send(json.dumps({"Response": Chatbot.__GetMessage__("SysExpiryToken"), "Metadata": None}))
-
-        else:
-            await websocket.send(json.dumps({"Response": Chatbot.__GetMessage__("SysFindToken"), "Metadata": ["是", "否"]}))
-            return str(headerToken)
-        user = ClientHelper.createNewUser(clientInfo[0], websocket)
-        await websocket.send(json.dumps({"Response": "sys_token", "Metadata": user.token}))
-        await websocket.send(json.dumps({"Response": Chatbot.__GetMessage__("SysNewKey")+str(user.key), "Metadata": None}))
+        # Disable all restore and cookies method
+        user = ClientHelper.createNewUser(clientInfo[0])
         await Chatbot.chat(user)
         await websocket.send(user.sendbackMessage)
         return user
+        # Below code won't triggered.
+        if None:  # Delete this while enable restore
+            try:
+                message = json.loads(message)
+                DataType = message["DataType"]
+                Data = message["Data"]
+            except:
+                raise TypeError
+
+            if DataType == "raw" and Data != "是":
+                user = ClientHelper.createNewUser(clientInfo[0])
+                await websocket.send(json.dumps({"Response": "sys_token", "Metadata": user.token}))
+                await websocket.send(json.dumps({"Response": Chatbot.__GetMessage__("SysNewKey")+str(user.key), "Metadata": None}))
+                await Chatbot.chat(user)
+                user.userUpdate(json.dumps(message))
+                await Chatbot.chat(user)
+                await websocket.send(user.sendbackMessage)
+                return user
+            elif DataType == "sys_key":
+                keyToken = ClientHelper.keyCheck(Data)
+
+                if not keyToken:
+                    await websocket.send(json.dumps({"Response": Chatbot.__GetMessage__("SysWrongKey"), "Metadata": None}))
+
+                elif keyToken == "Expiry":
+                    await websocket.send(json.dumps({"Response": Chatbot.__GetMessage__("SysExpiryKey"), "Metadata": None}))
+
+                else:
+                    try:
+                        user = ClientHelper.loadStatus(keyToken)
+                        await websocket.send(json.dumps({"Response": "sys_token", "Metadata": user.token}))
+                        await websocket.send(json.dumps({"Response": "sys_history", "Metadata": user.chatHistory}))
+                        logging.debug(
+                            f"Load Saved Client with Token={user.token}")
+                    except:
+                        user = ClientHelper.createNewUser(clientInfo[0])
+                        await websocket.send(json.dumps({"Response": "sys_token", "Metadata": user.token}))
+                        await websocket.send(json.dumps({"Response": Chatbot.__GetMessage__("SysNewKey")+str(user.key), "Metadata": None}))
+                        await Chatbot.chat(user)
+                        await websocket.send(user.sendbackMessage)
+                    return user
+
+            elif DataType == "sys" and Data == "start":
+                # Try to find token
+                pass
+
+            elif type(user) == str:
+                if Data == "是":
+                    try:
+                        user = ClientHelper.loadStatus(user)
+                        await websocket.send(json.dumps({"Response": "sys_history", "Metadata": user.chatHistory}))
+                        logging.debug(
+                            f"Load Saved Client with Token={user.token}")
+                        return user
+                    except:
+                        pass
+                user = ClientHelper.createNewUser(clientInfo[0])
+                await websocket.send(json.dumps({"Response": "sys_token", "Metadata": user.token}))
+                await websocket.send(json.dumps({"Response": Chatbot.__GetMessage__("SysNewKey")+str(user.key), "Metadata": None}))
+                await Chatbot.chat(user)
+                await websocket.send(user.sendbackMessage)
+                return user
+
+            headerToken = ClientHelper.tokenCheck(header)
+
+            if not headerToken:
+                await websocket.send(json.dumps({"Response": Chatbot.__GetMessage__("SysMissToken"), "Metadata": None}))
+
+            elif headerToken == "Expiry":
+                await websocket.send(json.dumps({"Response": Chatbot.__GetMessage__("SysExpiryToken"), "Metadata": None}))
+
+            else:
+                await websocket.send(json.dumps({"Response": Chatbot.__GetMessage__("SysFindToken"), "Metadata": ["是", "否"]}))
+                return str(headerToken)
+            user = ClientHelper.createNewUser(clientInfo[0])
+            await websocket.send(json.dumps({"Response": "sys_token", "Metadata": user.token}))
+            await websocket.send(json.dumps({"Response": Chatbot.__GetMessage__("SysNewKey")+str(user.key), "Metadata": None}))
+            await Chatbot.chat(user)
+            await websocket.send(user.sendbackMessage)
+            return user
 
     @staticmethod
     async def restoreUserStatus(headers, clientInfo):
@@ -174,7 +182,7 @@ class ClientHelper(object):
             return user
 
     @staticmethod
-    def createNewUser(userIP, websocket) -> UserObj.User:
+    def createNewUser(userIP) -> UserObj.User:
         user = UserObj.User()
 
         token = ClientHelper.__generateToken__(userIP)
@@ -183,7 +191,6 @@ class ClientHelper(object):
         user.token = token
         user.key = restoreKey
         logging.info(f"Initinal New Client with Key={user.key}")
-
         user.userUpdate('{"DataType":"sys","Data":"restart"}')
 
         return user
@@ -329,6 +336,8 @@ async def wsHandler(websocket, path):
         logging.error(errormessage)
     finally:
         logging.debug("Client Dropped")
+        return  # Delete This While Enable Restore
+        # Below code will not run
         if user:
             ClientHelper.saveStatus(user)
 
@@ -346,6 +355,7 @@ if __name__ == "__main__":
 
     try:
         loop.run_forever()
+
     except KeyboardInterrupt:
         loop.close()
         logging.critical("Save Key Cookie Pair")
