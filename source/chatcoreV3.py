@@ -52,9 +52,9 @@ encouragedDict = {x: 2 for x in encouragedList+ITinfotableKey}
 
 
 for ITsys, ITsysItem in ITinfotable.items():
-    ans = {"該系統功能簡述:<br>"+ITsysItem["功能簡述"]+"<br>業務單位: " +
-           ITsysItem["業務單位"]+"<br>業務負責人分機: "+ITsysItem["業務負責人分機"]+"<br>系統負責人: " +
-           ITsysItem["系統負責人"]+"<br>系統負責人分機: "+ITsysItem["系統負責人分機"]+"<br>": None}
+    ans = {"系統概述": ITsysItem["功能簡述"],
+           "業務單位": "業務單位/承辦人:{}<br>業務單位分機:{}".format(ITsysItem["業務單位"], ITsysItem["業務負責人分機"]),
+           "系統負責單位": "系統負責單位/承辦人:{}<br>系統負責單位分機:{}".format(ITsysItem["系統負責人"], ITsysItem["系統負責人分機"])}
     solutionList["Keyword"][ITsys] = {"Checklist": ans}
 
 
@@ -76,8 +76,7 @@ class Chatbot(object):
 
         # Restart Chat or Initinal Chat
         if User.chatHistory == []:
-            User.currentNode = copy.deepcopy(solutionList)
-            User.botUpdate("Keyword", self.__GetMessage__("Keyword"))
+            User.restart(solutionList, self.__GetMessage__("Keyword"))
             return
 
         # Find out User Intent or Feature
@@ -88,31 +87,31 @@ class Chatbot(object):
             if User.userSay.Message == "previous":  # Back to Pervious Step
                 #    User.path.pop()
                 raise NotImplementedError
+
             elif User.userSay.Message == "return":
                 # Return to Upper Recursive
 
                 if User.recursive == []:
                     # When we don't have any preserved recursive Ckecklist
                     # We just simply restart chat.
-                    User.currentNode = copy.deepcopy(solutionList)
-                    User.botUpdate("Keyword", self.__GetMessage__("Keyword"))
+                    User.restart(solutionList, self.__GetMessage__("Keyword"))
                     return
+
                 else:
                     # When we have preserved recursive Checklist.
                     # We pop the last Checklist from User.recursive
                     # This is the previous Checklist ,the one which before we enter current recursive
                     # We than simply restore it state.
-
                     outer = User.recursive.pop()
                     User.currentNode = outer
+                    User.intentLog.pop()
                     User.botUpdate("Checklist", self.__GetMessage__(
-                        "Checklist"), [*outer["Checklist"]])
+                        "Checklist").format("-".join([x for k in User.intentLog for x in k])), [*outer["Checklist"]])
                     return
 
             elif User.userSay.Message == "restart":
                 # Restart Chat(Initinal State)
-                User.currentNode = copy.deepcopy(solutionList)
-                User.botUpdate("Keyword", self.__GetMessage__("Keyword"))
+                User.restart(solutionList, self.__GetMessage__("Keyword"))
                 return
 
             else:
@@ -123,38 +122,43 @@ class Chatbot(object):
             # User Input via Text
             # We create candidateList via current node's all feature.
             # Than we try to find out what user's intent.
+
+            if User.userSay.Message in question["SysRestartConfirm"]["Question"]:
+                # If user input match SysRestartConfirm, restart.
+                User.restart(solutionList, self.__GetMessage__("Keyword"))
+                return
+
             candidateList = [*User.currentNode[User.botSay.WantedFeature]]
             UserIntent = self.__intentParser__(
                 User.userSay.Message, candidateList)
-
             if User.botSay.WantedFeature == "Checklist" and len(UserIntent) >= 1:
                 # If it in Checklist state, pick the hightest score one of current candidate list
                 # Just for convience.
                 VeryUserIntent = UserIntent[0]
             elif len(UserIntent) > 1:
-                # If it NOT in Checklist state and there is more than one intent, ask user again
-                # without changing state
                 logging.info(f"Guess Intent: {UserIntent}")
                 User.botUpdate(User.botSay.WantedFeature,
                                self.__GetMessage__("Unbounded"), UserIntent)
                 return
-            elif len(UserIntent) == 0:
-                # If we can't find any intent inside our list, just ask the same question again
-                # without changing state
-                User.botUpdate(User.botSay.WantedFeature,
-                               self.__GetMessage__(User.botSay.WantedFeature, True), None)
-                return
-            else:
+            elif len(UserIntent) == 1:
                 VeryUserIntent = UserIntent[0]
+
+            elif UserIntent == []:
+                User.botUpdate(User.botSay.WantedFeature,
+                               self.__GetMessage__(User.botSay.WantedFeature, True), [self.__GetMessage__("SysRestartConfirm")])
+                return
+
         elif User.userSay.Type == "clicked":
             # User Input via Picked One in List
             candidateList = [*User.currentNode[User.botSay.WantedFeature]]
             if User.userSay.Message not in candidateList:
-                raise TypeError
+                User.restart(solutionList, self.__GetMessage__("Keyword"))
+                return
+
             VeryUserIntent = User.userSay.Message
 
-        logging.info(f"Intent Found:{VeryUserIntent}")
-
+        logging.debug(f"Intent Found:{VeryUserIntent}")
+        logging.debug(f"Intent Log:{User.intentLog}")
         # Goto Next Stage
         # aka Feature State
 
@@ -163,8 +167,12 @@ class Chatbot(object):
 
         # newNode=oldnode[WantedFeatureName][Feature]
         # Feature was founded on the above code.
-
-        newNode = User.currentNode[User.botSay.WantedFeature][VeryUserIntent]
+        try:
+            newNode = User.currentNode[User.botSay.WantedFeature][VeryUserIntent]
+        except:
+            User.botUpdate(User.botSay.WantedFeature,
+                           self.__GetMessage__(User.botSay.WantedFeature, True), [self.__GetMessage__("SysRestartConfirm")])
+            return
 
         if type(newNode) == str:
             # If and only if we are in checklist state and client pick an item on list will this condition be true
@@ -172,8 +180,10 @@ class Chatbot(object):
             # There are one exception where we need to "Reference" other node in solution tree ,make type(newNode)==dict,
             # where we'll handle with next condition
             # We than return the string object to Client, Client will determind how to display.
+            User.intentLog[len(User.recursive)].append(VeryUserIntent)
             User.botUpdate("Checklist", newNode, None)
             return
+
         elif (type(newNode) == dict and "Reference" in newNode and User.botSay.WantedFeature == "Checklist"):
             # We reserve "Reference" as a reserved word ,which mean a reference will be made inside checklist
             # We push Current Checklist leaf to User.recursive
@@ -184,22 +194,37 @@ class Chatbot(object):
             # No mather we are in feature state or checklist state, we just update the User.botUpdate with
             # current wantedFeature and featureList.
             User.recursive.append(User.currentNode)
+            User.intentLog.append([])
+            User.intentLog[len(User.recursive)].append(VeryUserIntent)
             refPath = newNode["Reference"]
             tempSolution = copy.deepcopy(solutionList)
             for pathName in refPath:
                 tempSolution = tempSolution[[*tempSolution][0]][pathName]
             User.currentNode = tempSolution
             wantedFeature = [*tempSolution][0]
-            User.botUpdate(wantedFeature, self.__GetMessage__(
-                wantedFeature), [*tempSolution[wantedFeature]])
+            if wantedFeature == "Checklist":
+                sys_name = "-".join([x for k in User.intentLog for x in k])
+                User.botUpdate(wantedFeature, self.__GetMessage__(
+                    wantedFeature).format(sys_name), [*tempSolution[wantedFeature]])
+            else:
+                User.botUpdate(wantedFeature, self.__GetMessage__(
+                    wantedFeature), [*tempSolution[wantedFeature]])
             return
-
+        elif "Checklist" in newNode:
+            # Entering Checklist State
+            # When we reach leaf node. We are **Entering** checklist state.
+            # We'll Show the information that need to be check aka. Checklist
+            # Ckecklist state will be last as long as User.botSay.WantedFeature=="Checklist"
+            User.intentLog[len(User.recursive)].append(VeryUserIntent)
+            sys_name = "-".join([x for k in User.intentLog for x in k])
+            response = self.__GetMessage__("Checklist").format(sys_name)
+            User.botUpdate("Checklist", response, [*newNode["Checklist"]])
+            User.currentNode = newNode
+            return
         else:
-            # There will be **Three** condition that user enter this block
+            # There will be **Two** condition that user enter this block
             # A. Selecting in Intent State
             # B. Running in Feature State
-            # C. Entering Checklist State
-            # The two above blocks are handling **Inside** Checklist State
 
             # A. Intent State
             # When User say it first sentent and we found the very intent that user want.
@@ -208,11 +233,7 @@ class Chatbot(object):
             # B. Feature State
             # We want to find deeper feature so that we can go to leaf node
             # Just update user.currentNode with newnode and user.botsay.WantedFeature with new wanted feature
-
-            # C. Checklist State
-            # When we reach leaf node. We are **Entering** checklist state.
-            # We'll Show the information that need to be check aka. Checklist
-            # Ckecklist state will be last as long as User.botSay.WantedFeature=="Checklist"
+            User.intentLog[len(User.recursive)].append(VeryUserIntent)
             newwantedFeature = [*newNode][0]
             response = self.__GetMessage__(newwantedFeature)
             selectList = [*newNode[newwantedFeature]]
@@ -229,14 +250,29 @@ class Chatbot(object):
         except:
             raise NotImplementedError
 
-    def __intentParser__(self, message, candidate):
+    def __intentParser__(self, message, candidate) -> list:
         if message in candidate:
+            # Phase1: If message 100% match candidate
             return [message]
+
+        # Phase2: POS and fuzzy match throught candidate
         tokenList, token_posList = self.__CKIP__(message)
 
-        matched = self.__fuzzymatcher__(tokenList, token_posList, candidate)
+        fuzzyMatched = self.__fuzzymatcher__(
+            tokenList, token_posList, candidate)
 
-        return matched
+        if fuzzyMatched != []:
+            return fuzzyMatched
+
+        # Phase3: Try Sub-root search
+        # For example: user input : "密碼", System will try to find out ["成功入口","電子信箱"]
+        # since both have a "**密碼**" solution
+        subMatch = self.__submatch__(tokenList, token_posList)
+        if subMatch != []:
+            return subMatch
+
+        # Phase #: Unable to find any user intent
+        return []
 
     def __CKIP__(self, message):
         dictionary = construct_dictionary(encouragedDict)
@@ -247,15 +283,10 @@ class Chatbot(object):
         pos_sentence_list = pos(word_sentence_list)
         return word_sentence_list[0], pos_sentence_list[0]
 
-    def __fuzzymatcher__(self, tokenList, token_posList, candidate):
-        mark = ['COLONCATEGORY', 'COMMACATEGORY', 'DASHCATEGORY', 'DOTCATEGORY', 'ETCCATEGORY',
-                'EXCLAMATIONCATEGORY', 'PARENTHESISCATEGORY', 'PAUSECATEGORY', 'PERIODCATEGORY', 'QUESTIONCATEGORY',
-                'SEMICOLONCATEGORY', 'SPCHANGECATEGORY', 'WHITESPACE']
+    def __fuzzymatcher__(self, tokenList, token_posList, candidate) -> list:
 
         recommend = {}
-        #wanted_word = ["FW", "Na", "Nb", "Nc", "Ncd", "Nv"]
-        droped_list = ["DE", "D", "Nh", "Cbb", "Caa", "Cab",
-                       "Cba", "Da", "Dfa", "Dfb", "Di", "Dk", "DM", "I", "V_2", "Nd", "VE"]+mark
+        droped_list = CKIP_MARK+CKIP_UNWANTED
 
         for token, token_pos in zip(tokenList, token_posList):
             if token_pos in droped_list:
@@ -276,17 +307,50 @@ class Chatbot(object):
             for match_str, confidence in fuzzymatch+similarFuzzymatch:
                 if confidence < CONFIDENCE_DROP_THRESHOLD:
                     continue
-                if confidence >= CONFIDENCE_ACCEPT_THRESHOLD:
-                    return [match_str]
                 try:
                     recommend[confidence]
                     recommend[confidence].append(match_str)
                 except:
                     recommend[confidence] = [match_str]
-        order = sorted(recommend)
-        finded = []
-        for score in order:
-            finded += recommend[score]
-            if len(finded) > 5:
-                return list(set(finded))
-        return list(set(finded))
+        if recommend == {}:
+            return []
+        logging.debug("Intent Score:"+str(recommend))
+        maxFuzzy = max(recommend)
+        fuzzyMatch = []
+        if maxFuzzy >= CONFIDENCE_ACCEPT_THRESHOLD:
+            return list(set(recommend[maxFuzzy]))
+        for confidence, item in recommend.items():
+            candidateGroup = list(set(item))
+            if len(fuzzyMatch+candidateGroup) > MAX_INTEND_AMOUNT and fuzzyMatch != []:
+                return list(set(fuzzyMatch))
+            elif len(fuzzyMatch+candidateGroup) > MAX_INTEND_AMOUNT and fuzzyMatch == []:
+                return list(set(candidateGroup))
+            else:
+                fuzzyMatch += candidateGroup
+        return list(set(fuzzyMatch))
+
+    def __submatch__(self, tokenList, token_posList) -> list:
+        def dfs(node, head=None):
+            nonlocal submatch
+            nonlocal wantedToken
+            featureName = [*node][0]
+            if featureName == "Checklist":
+                return
+            for feature in node[featureName]:
+                if head == None:
+                    dfs(node[featureName][feature], feature)
+                    continue
+                for token in wantedToken:
+                    if token in feature:  # Match Method
+                        submatch.append(head)
+                dfs(node[featureName][feature], head)
+        droped_list = CKIP_MARK+CKIP_UNWANTED
+        wantedToken = []
+        for token, token_pos in zip(tokenList, token_posList):
+            if token_pos in droped_list:
+                continue
+            wantedToken.append(token)
+        submatch = []
+        dfs(solutionList)
+
+        return list(set(submatch))

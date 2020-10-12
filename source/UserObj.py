@@ -8,6 +8,7 @@ class User(object):
         # TODO:Previous Step
         # self.path=[]
         self.chatHistory = []
+        self.intentLog = [[]]
         self.token = None
         self.botSay = botWant()
         self.userSay = userSay()  # type=[control,raw,checked]
@@ -24,7 +25,6 @@ class User(object):
             {"Response": self.botSay.Response, "Metadata": self.botSay.Metadata})
 
     def userUpdate(self, inputData: str):
-
         try:
             data = json.loads(inputData)
             logging.info(data)
@@ -39,6 +39,16 @@ class User(object):
         self.userSay.Message = data["Data"]
         self.userSay.Type = data["DataType"]
         self.chatHistory.append([self.userSay.Message, "Client"])
+
+    def restart(self, s, m):
+        import copy
+        self.currentNode = copy.deepcopy(s)
+        self.recursive = []
+        self.intentLog = [[]]
+        self.botSay = botWant()
+        self.userSay = userSay()
+        self.botUpdate("Keyword", m)
+        self.userSay = userSay()
 
 
 class botWant(object):

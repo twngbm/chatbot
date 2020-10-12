@@ -321,6 +321,10 @@ async def wsHandler(websocket, path):
                 errormessage = traceback.format_exc()
                 logging.error(errormessage)
                 continue
+            except:
+                errormessage = traceback.format_exc()
+                logging.error(errormessage)
+                continue
 
             # Return Server say to Client
             await websocket.send(user.sendbackMessage)
