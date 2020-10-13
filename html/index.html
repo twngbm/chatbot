@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NCKU Chatbot example</title>
 
     <!--script src="https://npmcdn.com/babel-core@5.8.38/browser.min.js"></script-->
@@ -20,7 +21,6 @@
             <div id="sys_btn" class="btn-sys-div">
                 <button id="restart">重新開始</button>
                 <button id="return">上一步</button>
-                <button id="previous">上一個問題</button>
             </div>
         </div>
         <div class="row div-row-8">
@@ -43,7 +43,8 @@
             </div>
         </div>
     </div>
-    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" media="screen and (max-width: 480px)" href="index_mobile.css">
+    <link rel="stylesheet" media="screen and (min-width: 481px)" href="index.css">
     <script src="index.js"></script>
     <script src="speech.js"></script>
 </body>
