@@ -236,6 +236,7 @@ tempDict = {}
 ansList = {}
 IP = InputParser
 
+
 def set_default(obj):
     if isinstance(obj, set):
         return list(obj)

@@ -1,7 +1,6 @@
 data/
 __pycache__
 test.py
-psudoserver.py
 data.zip
 test.json
 Cookies/

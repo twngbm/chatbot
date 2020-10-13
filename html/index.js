@@ -1,19 +1,16 @@
 var ws = new WebSocket("ws://140.116.72.242:8080");
 var time = Date($.now());
 var scro;
-
 $(window).on('load', function () {
     init();
 });
 function init() {
     scro = $("#chat").mCustomScrollbar();
-
 }
 
 
 ws.onopen = function (event) {
     console.log("Open websocket");
-    wsend("restart", "sys");
 }
 
 ws.onclose = function (event) {
@@ -25,7 +22,6 @@ ws.onerror = function (event) {
 ws.onmessage = function (event) {
 
     msg = JSON.parse(event.data);
-    console.log(msg);
     var res = (msg.Response).split("sys_");
     var metadata = msg.Metadata;
     if (res.length != 1) { //sys 1. history 2. token
@@ -43,6 +39,7 @@ ws.onmessage = function (event) {
         }
     }
 }
+
 function wsend(msg, type) {
     var tmp = { "DataType": type, "Data": msg };
     ws.send(JSON.stringify(tmp));
@@ -55,7 +52,6 @@ function updateScrollbar() {
         timeout: 0
     });
 }
-
 
 function insertServerMsg(msg, md) {
     if (md == 0) {
@@ -79,13 +75,11 @@ function getDate() {
     time = Date($.now()).toString();
     return Date($.now()).toString().split("GMT")[0];
 }
-
 $(document).ready(function () {
     $('#send').click(function () {
         inputMsg = $('#inputText').val();
         if (Number.isInteger(parseInt(inputMsg)) && parseInt(inputMsg) < 10000) {
             insertClientMsg(inputMsg, "sys_key");
-            $('#inputText').val(null);
         } else if (inputMsg != "") {
             insertClientMsg(inputMsg, "raw");
             $('#inputText').val(null);
@@ -97,7 +91,6 @@ $(document).ready(function () {
             inputMsg = $('#inputText').val();
             if (Number.isInteger(parseInt(inputMsg)) && parseInt(inputMsg) < 10000) {
                 insertClientMsg(inputMsg, "sys_key");
-                $('#inputText').val(null);
             } else if (inputMsg != "") {
                 insertClientMsg(inputMsg, "raw");
                 $('#inputText').val(null);
