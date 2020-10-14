@@ -1,19 +1,18 @@
-import logging
-import time
-import os
-from ChatbotConfig import WEBSOCKETPORT, jwtKey, CLIENT_PATH, EXPIRE_TIME
-import jwt
-import json
 import asyncio
+import json
+import logging
+import os
+import signal
+import traceback
+from pathlib import Path
+
+import nest_asyncio
 import websockets
 import websockets.handshake
-import signal
-import concurrent.futures
-import traceback
-import nest_asyncio
-import UserObj
-import pickle
-from pathlib import Path
+
+from ChatbotConfig import CLIENT_PATH, EXPIRE_TIME, WEBSOCKETPORT, jwtKey
+from helper import ClientHelper
+
 nest_asyncio.apply()
 #import multiprocessing
 #multiprocessing.set_start_method('fork', True)
@@ -71,236 +70,12 @@ def init():
         cookie_key = {}
 
 
-class ClientHelper(object):
-    @staticmethod
-    async def botHandshake(header, clientInfo, websocket, message, user) -> UserObj.User:
-        # Disable all restore and cookies method
-        user = ClientHelper.createNewUser(clientInfo[0])
-        await Chatbot.chat(user)
-        await websocket.send(user.sendbackMessage)
-        return user
-        # Below code won't triggered.
-        if None:  # Delete this while enable restore
-            try:
-                message = json.loads(message)
-                DataType = message["DataType"]
-                Data = message["Data"]
-            except:
-                raise TypeError
-
-            if DataType == "raw" and Data != "是":
-                user = ClientHelper.createNewUser(clientInfo[0])
-                await websocket.send(json.dumps({"Response": "sys_token", "Metadata": user.token}))
-                await websocket.send(json.dumps({"Response": Chatbot.__GetMessage__("SysNewKey")+str(user.key), "Metadata": None}))
-                await Chatbot.chat(user)
-                user.userUpdate(json.dumps(message))
-                await Chatbot.chat(user)
-                await websocket.send(user.sendbackMessage)
-                return user
-            elif DataType == "sys_key":
-                keyToken = ClientHelper.keyCheck(Data)
-
-                if not keyToken:
-                    await websocket.send(json.dumps({"Response": Chatbot.__GetMessage__("SysWrongKey"), "Metadata": None}))
-
-                elif keyToken == "Expiry":
-                    await websocket.send(json.dumps({"Response": Chatbot.__GetMessage__("SysExpiryKey"), "Metadata": None}))
-
-                else:
-                    try:
-                        user = ClientHelper.loadStatus(keyToken)
-                        await websocket.send(json.dumps({"Response": "sys_token", "Metadata": user.token}))
-                        await websocket.send(json.dumps({"Response": "sys_history", "Metadata": user.chatHistory}))
-                        logging.debug(
-                            f"Load Saved Client with Token={user.token}")
-                    except:
-                        user = ClientHelper.createNewUser(clientInfo[0])
-                        await websocket.send(json.dumps({"Response": "sys_token", "Metadata": user.token}))
-                        await websocket.send(json.dumps({"Response": Chatbot.__GetMessage__("SysNewKey")+str(user.key), "Metadata": None}))
-                        await Chatbot.chat(user)
-                        await websocket.send(user.sendbackMessage)
-                    return user
-
-            elif DataType == "sys" and Data == "start":
-                # Try to find token
-                pass
-
-            elif type(user) == str:
-                if Data == "是":
-                    try:
-                        user = ClientHelper.loadStatus(user)
-                        await websocket.send(json.dumps({"Response": "sys_history", "Metadata": user.chatHistory}))
-                        logging.debug(
-                            f"Load Saved Client with Token={user.token}")
-                        return user
-                    except:
-                        pass
-                user = ClientHelper.createNewUser(clientInfo[0])
-                await websocket.send(json.dumps({"Response": "sys_token", "Metadata": user.token}))
-                await websocket.send(json.dumps({"Response": Chatbot.__GetMessage__("SysNewKey")+str(user.key), "Metadata": None}))
-                await Chatbot.chat(user)
-                await websocket.send(user.sendbackMessage)
-                return user
-
-            headerToken = ClientHelper.tokenCheck(header)
-
-            if not headerToken:
-                await websocket.send(json.dumps({"Response": Chatbot.__GetMessage__("SysMissToken"), "Metadata": None}))
-
-            elif headerToken == "Expiry":
-                await websocket.send(json.dumps({"Response": Chatbot.__GetMessage__("SysExpiryToken"), "Metadata": None}))
-
-            else:
-                await websocket.send(json.dumps({"Response": Chatbot.__GetMessage__("SysFindToken"), "Metadata": ["是", "否"]}))
-                return str(headerToken)
-            user = ClientHelper.createNewUser(clientInfo[0])
-            await websocket.send(json.dumps({"Response": "sys_token", "Metadata": user.token}))
-            await websocket.send(json.dumps({"Response": Chatbot.__GetMessage__("SysNewKey")+str(user.key), "Metadata": None}))
-            await Chatbot.chat(user)
-            await websocket.send(user.sendbackMessage)
-            return user
-
-    @staticmethod
-    async def restoreUserStatus(headers, clientInfo):
-        # TODO:Key check and restore
-        pass
-        # Cookie check and restore
-        try:
-            token = headers["Cookie"].split("token=")[1]
-            try:
-                user = ClientHelper.loadStatus(token)
-                return user, None
-            except:
-                raise IOError
-        except:
-            # token not found or token
-            token = ClientHelper.__generateToken__(clientInfo[0])
-            restoreKey = ClientHelper.__genetatrKey__(token)
-            user = UserObj.User()
-            user.token = token
-            user.key = restoreKey
-            return user
-
-    @staticmethod
-    def createNewUser(userIP) -> UserObj.User:
-        user = UserObj.User()
-
-        token = ClientHelper.__generateToken__(userIP)
-        restoreKey = ClientHelper.__genetatrKey__(token)
-
-        user.token = token
-        user.key = restoreKey
-        logging.info(f"Initinal New Client with Key={user.key}")
-        user.userUpdate('{"DataType":"sys","Data":"restart"}')
-
-        return user
-
-    @staticmethod
-    def loadStatus(token):
-        filename = str(token)
-        logging.info(f"Client Restor from cookie token {token}")
-
-        with open("./"+CLIENT_PATH+"/Cookies/"+filename+".pkl", "rb") as f:
-            user = pickle.load(f, encoding="utf8")
-        return user
-
-    @staticmethod
-    def saveStatus(userStatus):
-        filename = userStatus.token
-        key_cookie[userStatus.key]["Expiry"] = int(time.time()+EXPIRE_TIME)
-        with open("./"+CLIENT_PATH+"/Cookies/"+filename+".pkl", "wb") as f:
-            pickle.dump(userStatus, f)
-
-    @staticmethod
-    def keyCheck(key):
-        try:
-            key = int(key)
-            cookieData = key_cookie[key]
-        except:
-            return None
-        if cookieData == None:
-            return None
-        if time.time() > int(cookieData["Expiry"]):
-            return "Expiry"
-        return cookieData["Token"]
-
-    @staticmethod
-    def tokenCheck(headers):
-        try:
-            token = headers["Cookie"].split("token=")[1]
-            key = cookie_key[token]
-            cookieData = key_cookie[key]
-        except:
-            return None
-        if time.time() > int(cookieData["Expiry"]):
-            cookie_key.pop(token, None)
-            key_cookie.pop(key, None)
-
-            try:
-                os.remove("./"+CLIENT_PATH+"Cookies/"+token)
-            except:
-                pass
-
-            return "Expiry"
-        return token
-
-    @staticmethod
-    def __generateToken__(ip):
-        payload = {
-            "iss": "ncku.chatbot.com",
-            "iat": int(time.time()),
-            "exp": int(time.time()) + 86400*3,
-            "ip": ip
-        }
-
-        token = jwt.encode(payload, jwtKey, algorithm='HS256').decode("utf-8")
-
-        return token
-
-    @staticmethod
-    def __genetatrKey__(token):
-        for key, value in key_cookie.items():
-            if value == None:
-                key_cookie[key] = {"Token": token,
-                                   "Expiry": int(time.time()+EXPIRE_TIME)}
-                cookie_key[token] = key
-                return key
-            elif time.time() > int(value["Expiry"]):
-                try:
-                    os.remove("./"+CLIENT_PATH+"Cookies/"+value["Token"])
-                except:
-                    pass
-                cookie_key.pop(value["Token"], None)
-
-                key_cookie[key] = {"Token": token,
-                                   "Expiry": int(time.time()+EXPIRE_TIME)}
-                cookie_key[token] = key
-                return key
-        key = key+1
-        cookie_key[token] = key
-        key_cookie[key] = {"Token": token,
-                           "Expiry": int(time.time()+EXPIRE_TIME)}
-        return key
-
-
 async def wsHandler(websocket, path):
-    header = websocket.request_headers
     clientInfo = websocket.remote_address
-    user = None
+    user = await ClientHelper.botHandshake(clientInfo, websocket, Chatbot)
     try:
         async for message in websocket:
-
-            # Stop here while user not define
-            if not user or type(user) == str:
-                try:
-                    user = await ClientHelper.botHandshake(header, clientInfo, websocket, message, user)
-                    continue
-                except TypeError:
-                    errormessage = traceback.format_exc()
-                    logging.error(errormessage)
-                    continue
-
-            logging.debug(f"Client:{user.token} Received Message:{message}")
+            logging.info(f"{user.userID} >>>>>> {message}")
 
             # Feed raw message into User
             try:
@@ -328,22 +103,19 @@ async def wsHandler(websocket, path):
 
             # Return Server say to Client
             await websocket.send(user.sendbackMessage)
+            logging.info(f'{user.userID} <<<<<< {user.sendbackMessage}')
 
         # Client Closed
 
-        logging.debug(f"Client Closed")
-        if user:
-            ClientHelper.saveStatus(user)
+        logging.info(f"Client {user.userID} Closed")
 
     except:
         errormessage = traceback.format_exc()
         logging.error(errormessage)
     finally:
-        logging.debug("Client Dropped")
+        logging.debug(f"Client {user.userID} Dropped")
+        del user
         return  # Delete This While Enable Restore
-        # Below code will not run
-        if user:
-            ClientHelper.saveStatus(user)
 
 
 if __name__ == "__main__":

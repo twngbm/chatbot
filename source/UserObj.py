@@ -4,17 +4,14 @@ import logging
 
 class User(object):
     def __init__(self):
+        self.userID = ""
         self.currentNode = {}
-        # TODO:Previous Step
-        # self.path=[]
         self.chatHistory = []
         self.intentLog = [[]]
-        self.token = None
         self.botSay = botWant()
         self.userSay = userSay()  # type=[control,raw,checked]
         self.recursive = []
         self.sendbackMessage = None
-        self.key = None  # Restore Key
 
     def botUpdate(self, feature, response, metadate=None):
         self.botSay.WantedFeature = feature
@@ -22,12 +19,11 @@ class User(object):
         self.chatHistory.append([response, "Server"])
         self.botSay.Metadata = metadate
         self.sendbackMessage = json.dumps(
-            {"Response": self.botSay.Response, "Metadata": self.botSay.Metadata})
+            {"Response": self.botSay.Response, "Metadata": self.botSay.Metadata}, ensure_ascii=False)
 
     def userUpdate(self, inputData: str):
         try:
             data = json.loads(inputData)
-            logging.info(data)
         except:
             raise TypeError
 

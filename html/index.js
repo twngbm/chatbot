@@ -78,9 +78,7 @@ function getDate() {
 $(document).ready(function () {
     $('#send').click(function () {
         inputMsg = $('#inputText').val();
-        if (Number.isInteger(parseInt(inputMsg)) && parseInt(inputMsg) < 10000) {
-            insertClientMsg(inputMsg, "sys_key");
-        } else if (inputMsg != "") {
+        if (inputMsg != "") {
             insertClientMsg(inputMsg, "raw");
             $('#inputText').val(null);
         }
@@ -89,9 +87,7 @@ $(document).ready(function () {
         if (event.keyCode == 13) {
             event.preventDefault();
             inputMsg = $('#inputText').val();
-            if (Number.isInteger(parseInt(inputMsg)) && parseInt(inputMsg) < 10000) {
-                insertClientMsg(inputMsg, "sys_key");
-            } else if (inputMsg != "") {
+            if (inputMsg != "") {
                 insertClientMsg(inputMsg, "raw");
                 $('#inputText').val(null);
             }
