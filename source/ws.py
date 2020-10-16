@@ -17,7 +17,7 @@ nest_asyncio.apply()
 #import multiprocessing
 #multiprocessing.set_start_method('fork', True)
 
-# TODO：Multi processing websocket werver
+# TODO：Multi processing websocket server
 
 
 def init():

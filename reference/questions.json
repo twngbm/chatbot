@@ -160,59 +160,9 @@
         }
     },
     {
-        "SysNewKey": {
+        "moodleQD": {
             "Question": [
-                "請妥善保管以下金鑰:<br>"
-            ],
-            "Exception": [
-                "無法判斷問題，請重新選擇"
-            ]
-        }
-    },
-    {
-        "SysExpiryKey": {
-            "Question": [
-                "您輸入的金鑰已過期"
-            ],
-            "Exception": [
-                "無法判斷問題，請重新選擇"
-            ]
-        }
-    },
-    {
-        "SysWrongKey": {
-            "Question": [
-                "您輸入的金鑰不存在"
-            ],
-            "Exception": [
-                "無法判斷問題，請重新選擇"
-            ]
-        }
-    },
-    {
-        "SysFindToken": {
-            "Question": [
-                "在您瀏覽器中找到歷史紀錄，是否還原?"
-            ],
-            "Exception": [
-                "無法判斷問題，請重新選擇"
-            ]
-        }
-    },
-    {
-        "SysMissToken": {
-            "Question": [
-                "未在您瀏覽器中找到歷史紀錄。"
-            ],
-            "Exception": [
-                "無法判斷問題，請重新選擇"
-            ]
-        }
-    },
-    {
-        "SysExpiryToken": {
-            "Question": [
-                "在您瀏覽器中儲存之紀錄已過期。"
+                "請問是以下哪一個問題？"
             ],
             "Exception": [
                 "無法判斷問題，請重新選擇"
@@ -226,6 +176,16 @@
             ],
             "Exception": [
                 "無法判斷問題，請重新選擇"
+            ]
+        }
+    },
+    {
+        "GSID": {
+            "Question": [
+                "請問您的身分?"
+            ],
+            "Exception": [
+                "請輸入教職員，學生或畢業校友"
             ]
         }
     }
