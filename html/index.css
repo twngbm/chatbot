@@ -440,3 +440,27 @@ li button:active{
   background:#d8ffff;
 }
 
+#cho-return{
+  background-image: url("img/back.png");
+  background-size: 30px 30px;
+  background-position: center; 
+  background-repeat: no-repeat;
+  vertical-align: middle;
+  height: 45px;
+  width: 45px;
+  border-radius: 50%;
+  margin-left: 10%;
+  float: left;
+}
+#cho-restart{
+  background-image: url("img/refresh-page-option.png");
+  background-size: 30px 30px;
+  background-position: center; 
+  background-repeat: no-repeat;
+  vertical-align: middle;
+  height: 45px;
+  width: 45px;
+  border-radius: 50%;
+  margin-left: 20%;
+  float: left;
+}
