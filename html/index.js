@@ -23,23 +23,6 @@ ws.onerror = function (event) {
 ws.onmessage = function (event) {
     msg = JSON.parse(event.data);
     insertServerMsg(msg.Response, msg.Metadata, msg.Type);
-    /*
-    var res = (msg.Response).split("sys_");
-    var metadata = msg.Metadata;
-    if (res.length != 1) { //sys 1. history 2. token
-        if (res[1] == "history") restoreHistory(metadata);
-        if (res[1] == "token") $.cookie('token', metadata, { expires: 7, path: '/' });
-    } else { // 1. one-line 2. list
-        if (!metadata) { // is link?
-            if (((res[0].split("http")).length > 1)) {
-                insertServerMsg(res[0], 1);
-                return;
-            }
-            insertServerMsg(res[0], 0);
-        } else {
-            insertServerMsg(res[0], metadata);
-        }
-    }*/
 }
 
 function wsend(msg, type) {
@@ -54,7 +37,7 @@ function updateScrollbar() {
         timeout: 0
     });
 }
-//<ul id="chatBlock" class="rounded-messages messages-width-large">
+
 function insertServerMsg(msg, chosen, type) {
     var res = "";
     serverHistory == null ? len = 0 : len = serverHistory.length;
@@ -67,7 +50,7 @@ function insertServerMsg(msg, chosen, type) {
         btn += "<button data-opnum=return id=cho-return></button><br>";
         res = ('<li id="p' + len + '">' + msg + '<br>' + btn + '</li>');
     } else if (type == 1) {
-
+        res += '<li id="p' + len + '"><img data-opnum="chat-p-img" src='+msg+'></li>'
     } else if (type == 2) {
         window.open(msg, "開啟新分頁");
     }
@@ -118,11 +101,10 @@ document.getElementById('chatBlock').addEventListener('click', (e) => {
         lastStep();
         return;
         //insertClientMsg(clickMsg,"sys");
-    } else if (clickMsg == "start") {
-        insertClientMsg("開始", 0);
-        wsend("start", "sys");
+    } else if (clickMsg == "chat-p-img") {
+        window.open((e.target.getAttribute('src')),"開啟新分頁");
         return;
-    } else {
+    }else {
         insertClientMsg(clickMsg, "raw");
     }
 })
