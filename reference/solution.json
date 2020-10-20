@@ -587,7 +587,7 @@
                             "Reference": [
                                 "電子信箱",
                                 "教職員",
-                                "Gsuite",
+                                "GSuite",
                                 "使用說明"
                             ]
                         },
@@ -595,7 +595,7 @@
                             "Reference": [
                                 "電子信箱",
                                 "教職員",
-                                "Gsuite",
+                                "GSuite",
                                 "帳號申請"
                             ]
                         },
@@ -603,7 +603,7 @@
                             "Reference": [
                                 "電子信箱",
                                 "教職員",
-                                "Gsuite",
+                                "GSuite",
                                 "忘記密碼"
                             ]
                         },
@@ -611,7 +611,7 @@
                             "Reference": [
                                 "電子信箱",
                                 "教職員",
-                                "Gsuite",
+                                "GSuite",
                                 "忘記帳號"
                             ]
                         },
@@ -619,7 +619,7 @@
                             "Reference": [
                                 "電子信箱",
                                 "教職員",
-                                "Gsuite"
+                                "GSuite"
                             ]
                         }
                     }
@@ -631,7 +631,7 @@
                             "Reference": [
                                 "電子信箱",
                                 "學生",
-                                "Gsuite",
+                                "GSuite",
                                 "使用說明"
                             ]
                         },
@@ -639,7 +639,7 @@
                             "Reference": [
                                 "電子信箱",
                                 "學生",
-                                "Gsuite",
+                                "GSuite",
                                 "帳號申請"
                             ]
                         },
@@ -647,7 +647,7 @@
                             "Reference": [
                                 "電子信箱",
                                 "學生",
-                                "Gsuite",
+                                "GSuite",
                                 "忘記密碼"
                             ]
                         },
@@ -655,7 +655,7 @@
                             "Reference": [
                                 "電子信箱",
                                 "學生",
-                                "Gsuite"
+                                "GSuite"
                             ]
                         }
                     }
@@ -674,10 +674,35 @@
             }
         },
         "分機": {
-            "Checklist": {
-                "Description": "請輸入系統名稱，承辦人或分機號碼",
-                "Function": "systemSearch"
-            }
+            "Function": [
+                [
+                    "getMessage",
+                    "phoneQD"
+                ],
+                [
+                    "systemSearch",
+                    "$INPUT"
+                ]
+            ]
+        },
+        "天氣": {
+            "Function": [
+                [
+                    "getWeather"
+                ]
+            ]
+        },
+        "地點": {
+            "Function": [
+                [
+                    "getMessage",
+                    "whereis"
+                ],
+                [
+                    "getLocation",
+                    "$INPUT"
+                ]
+            ]
         }
     }
 }

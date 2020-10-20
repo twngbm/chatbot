@@ -1,8 +1,9 @@
 # Server Setup
+try:
+    from realKey import *
+except:
+    pass
 WEBSOCKETPORT = 8080
-jwtKey = 'rteschatbotsecret'
-CLIENT_PATH = '/Client/'
-EXPIRE_TIME = 604800  # Seconds
 
 
 # Ckip Data Path
@@ -27,3 +28,13 @@ CKIP_MARK = ['COLONCATEGORY', 'COMMACATEGORY', 'DASHCATEGORY', 'DOTCATEGORY', 'E
              'SEMICOLONCATEGORY', 'SPCHANGECATEGORY', 'WHITESPACE']
 CKIP_UNWANTED = ["DE", "D", "Nh", "Cbb", "Caa", "Cab",
                  "Cba", "Da", "Dfa", "Dfb", "Di", "Dk", "DM", "I", "Nd"]
+
+# Other Supported (OpenWeather AIP Key...)
+try:
+    OPENWEATHER_APIKEY
+except:
+    OPENWEATHER_APIKEY = "https://openweathermap.org/ api key here"
+try:
+    GOOGLE_PLACES_API_KEY
+except:
+    GOOGLE_PLACES_API_KEY = "GOOGLE API KEY HERE"

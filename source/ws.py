@@ -10,8 +10,9 @@ import nest_asyncio
 import websockets
 import websockets.handshake
 
-from ChatbotConfig import CLIENT_PATH, EXPIRE_TIME, WEBSOCKETPORT, jwtKey
-from helper import ClientHelper
+import Chatcore
+from ChatbotConfig import WEBSOCKETPORT
+from utils import ServerUtils, LoaderUtils
 
 nest_asyncio.apply()
 #import multiprocessing
@@ -21,9 +22,8 @@ nest_asyncio.apply()
 
 
 def init():
+    global DATA
     global Chatbot
-    global key_cookie
-    global cookie_key
 
     loglevel = os.getenv('LOG', "INFO")
     if loglevel == "DEBUG":
@@ -44,10 +44,11 @@ def init():
                         datefmt="%Y-%m-%d %H:%M:%S")
     logging.critical("Chatbot Core Initinal")
 
-    import chatcoreV3 as cc
+    DATA = LoaderUtils()
+    Chatbot = Chatcore.Chatbot(DATA)
 
-    Chatbot = cc.Chatbot()
     logging.critical("Chatbot Core Initinal Done")
+    """
     logging.critical("Load Key_Cookie Pair")
 
     try:
@@ -68,19 +69,20 @@ def init():
         Path("./"+CLIENT_PATH+"key_cookies.json").touch()
         key_cookie = {1000: None}
         cookie_key = {}
+    """
 
 
 async def wsHandler(websocket, path):
     clientInfo = websocket.remote_address
-    user = await ClientHelper.botHandshake(clientInfo, websocket, Chatbot)
+    user = await ServerUtils.createNewUser(clientInfo, DATA, websocket)
     try:
         async for message in websocket:
-            logging.info(f"{user.userID} >>>>>> {message}")
 
             # Feed raw message into User
             try:
-                user.userUpdate(message)
-            except TypeError:
+                ServerUtils.messageReceive(user, message)
+
+            except:
                 errormessage = traceback.format_exc()
                 logging.error(errormessage)
                 continue
@@ -88,22 +90,14 @@ async def wsHandler(websocket, path):
             # Chat Logic
             try:
                 await Chatbot.chat(user)
-            except NotImplementedError:
-                errormessage = traceback.format_exc()
-                logging.error(errormessage)
-                continue
-            except TypeError:
-                errormessage = traceback.format_exc()
-                logging.error(errormessage)
-                continue
+
             except:
                 errormessage = traceback.format_exc()
                 logging.error(errormessage)
                 continue
 
             # Return Server say to Client
-            await websocket.send(user.sendbackMessage)
-            logging.info(f'{user.userID} <<<<<< {user.sendbackMessage}')
+            await ServerUtils.messageSend(user, websocket)
 
         # Client Closed
 
@@ -134,8 +128,5 @@ if __name__ == "__main__":
 
     except KeyboardInterrupt:
         loop.close()
-        logging.critical("Save Key Cookie Pair")
-        with open("./"+CLIENT_PATH+"key_cookies.json", "w") as f:
-            json.dump(key_cookie, f)
         logging.critical("Web Socket Server Stop")
         exit(0)
