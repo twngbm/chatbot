@@ -132,6 +132,9 @@ class User(object):
         self.botUpdate(response, selectList, None, -1)
         return
 
+    def jump(self):
+        pass
+
     def reference(self, path: list):
         tempSolution = copy.deepcopy(self.data.solutionList)
         for pathName in path:

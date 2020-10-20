@@ -46,6 +46,7 @@ class Chatbot(object):
             if userIntent != []:
                 User.restart()
                 return
+            # Check if goto previous step
             userIntent = self.IntentUtils.intentParser(
                 User.userSay.Message, self.data.question["SysPrevious"]["Question"], True)
             if userIntent != []:
@@ -56,6 +57,9 @@ class Chatbot(object):
                 User.updateFunction(User.userSay.Message)
                 return
 
+            if User.userSay.relatively != 0:
+                User.jump()
+                return
             candidate = User.currentFeature()
             userIntent = self.IntentUtils.intentParser(
                 User.userSay.Message, candidate)

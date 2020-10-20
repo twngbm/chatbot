@@ -274,4 +274,4 @@ class FunctionUtils():
         return output, None, False
 
     def getLocation(self, *args):
-        return "/img/nckumap.jpg", None, False
+        return "img/nckumap.jpg", None, False
