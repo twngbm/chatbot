@@ -1,6 +1,8 @@
-var ws = new WebSocket("ws://140.116.72.242:8080");
+var ws = new WebSocket("ws://140.116.72.235:8080");
 var time = Date($.now());
 var scro;
+var serverHistory = [];
+
 $(window).on('load', function () {
     init();
 });
@@ -20,7 +22,6 @@ ws.onerror = function (event) {
     if (ws.url == "ws://140.116.72.242:8080") insertServerMsg("伺服器離線中，請嘗試重新連線。", 0);
 }
 ws.onmessage = function (event) {
-
     msg = JSON.parse(event.data);
     var res = (msg.Response).split("sys_");
     var metadata = msg.Metadata;
@@ -56,16 +57,22 @@ function updateScrollbar() {
 function insertServerMsg(msg, md) {
     if (md == 0) {
         $('<li>' + msg + '</li>').appendTo($('#chatBlock'));
+        serverHistory.push('<li>' + msg + '</li>');
     } else if (md == 1) {
         $('<li><a href="' + msg + '" target="_blank">' + msg + '</a></li>').appendTo($('#chatBlock'));
+        serverHistory.push('<li><a href="' + msg + '" target="_blank">' + msg + '</a></li>');
     } else {
         var tmp = ""
         md.forEach(element => tmp += "<button data-opnum=" + element + ">" + element + "</button><br>");
+        tmp += "<button data-opnum=restart>重新開始</button><br>";
+        tmp += "<button data-opnum=return>回到上一步</button><br>";
         $('<ul id="chatBlock" class="rounded-messages messages-width-large"><li>' + msg + '<br>' + tmp + '</ul>').appendTo($('#chatBlock'));
+        serverHistory.push('<ul id="chatBlock" class="rounded-messages messages-width-large"><li>' + msg + '<br>' + tmp + '</ul>');
     }
     updateScrollbar();
 }
 function insertClientMsg(msg, type) {
+    serverHistory.push('<li class="right-msg">' + msg + '</li>');
     $('<li class="right-msg">' + msg + '</li>').appendTo($('#chatBlock'));
     if (type != 0) wsend(msg, type);
     updateScrollbar();
@@ -97,8 +104,14 @@ $(document).ready(function () {
 
 document.getElementById('chatBlock').addEventListener('click', (e) => {
     var clickMsg = (e.target.getAttribute('data-opnum'));
-    if (clickMsg == null) return;
-    if (clickMsg == "start") {
+    if (clickMsg == null){
+        return;
+    }else if (clickMsg == "restart") {
+        insertClientMsg(clickMsg,"sys");
+        location.reload();
+    }else if (clickMsg == "return") {
+        //insertClientMsg(clickMsg,"sys");
+    }else if (clickMsg == "start") {
         insertClientMsg("開始", 0);
         wsend("start", "sys");
         return;
@@ -109,14 +122,17 @@ document.getElementById('chatBlock').addEventListener('click', (e) => {
 
 document.getElementById('sys_btn').addEventListener('click', (e) => {
     var clickMsg = (e.target.getAttribute('id'));
+    if (clickMsg == "restart") {
+        insertClientMsg(clickMsg,"sys");
+        location.reload();
+    }
     if (clickMsg == null) return;
     insertClientMsg(clickMsg, "sys");
 })
 
-function restoreHistory(metadata) {
-    for (var i = 0; i < metadata.length; i += 1) {
-        if (metadata[i][1] == "Client") insertClientMsg(metadata[i][0], 0);
-        else if (metadata[i][1] == "Server") insertServerMsg(metadata[i][0], 0);
-        else console.log("ERROR");
-    }
+function lastStep() {
+    $('.choosen-btn').remove();
+    serverHistory.pop();
+    serverHistory.pop();
+    md.forEach(element => $(element).appendTo('#chatBlock'));
 }
