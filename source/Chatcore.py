@@ -46,7 +46,11 @@ class Chatbot(object):
             if userIntent != []:
                 User.restart()
                 return
-
+            userIntent = self.IntentUtils.intentParser(
+                User.userSay.Message, self.data.question["SysPrevious"]["Question"], True)
+            if userIntent != []:
+                User.undoNode()
+                return
             # Check if inside function
             if User.inFunction:
                 User.updateFunction(User.userSay.Message)
