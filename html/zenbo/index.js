@@ -1,4 +1,6 @@
-var ws = new WebSocket("ws://140.116.72.235:8080");
+var ip = location.host;
+var wss = "ws://" + ip + ":8080";
+var ws = new WebSocket(wss);
 var time = Date($.now());
 var ttt = 0;
 
@@ -30,12 +32,13 @@ ws.onclose = function (event) {
     console.log("Close Websocket");
 };
 ws.onerror = function (event) {
-    if (ws.url == "ws://140.116.72.242:8080") insertServerMsg("伺服器離線中，請嘗試重新連線。",null);
+    if (ws.url == wss) insertServerMsg("伺服器離線中，請嘗試重新連線。", null);
 }
 ws.onmessage = function (event) {
     msg = JSON.parse(event.data);
-    if(msg.Type != 2) historyArr.push(msg);
-    historyIndex = historyArr.length-1;
+    if (msg.Type != 2) historyArr.push(msg);
+    console.log(historyArr);
+    historyIndex = historyArr.length - 1;
     insertServerMsg(msg.Response, msg.Metadata, msg.Type);
 }
 
@@ -44,28 +47,28 @@ function wsend(msg, type) {
     ws.send(JSON.stringify(tmp));
 }
 
-function insertServerMsg(msg,choosen,type) {
-    if( type == 0){
+function insertServerMsg(msg, choosen, type) {
+    if (type == 0) {
         init();
-        msg = (msg.replace("<b>","\""));
-        msg = (msg.replace("</b>","\""));
+        msg = (msg.replace("<b>", "\""));
+        msg = (msg.replace("</b>", "\""));
         $('#server-content').html(msg);
-        if(choosen != null){
-            for (var i = 0; i < choosen.length ; i++) {
-                $('<button class="choosen-btn" id=zc'+historyIndex+i+' data-opnum= '+choosen[i]+'>'+choosen[i]+'</button>').appendTo($('#zenbo-choosen'));
+        if (choosen != null) {
+            for (var i = 0; i < choosen.length; i++) {
+                $('<button class="choosen-btn" id=zc' + historyIndex + i + ' data-opnum= ' + choosen[i] + '>' + choosen[i] + '</button>').appendTo($('#zenbo-choosen'));
             }
-        }else{
+        } else {
             $('.choosen-btn').remove();
         }
-    }else if( type == 1){
+    } else if (type == 1) {
         init();
         $('#server-content').css("display", "none");
         $('#chat-p-img').css("display", "inherit");
         $('#chat-p-img').attr('src') = msg;
         //$('<img src='+msg+'>').appendTo($('#chat-p'));
         console.log(msg);
-    }else if(type == 2){
-        window.open(msg,"開啟新分頁");
+    } else if (type == 2) {
+        window.open(msg, "開啟新分頁");
     }
 }
 
@@ -79,50 +82,50 @@ document.getElementById('restart').addEventListener('click', (e) => {
     init();
     historyArr = [];
     historyIndex = 0;
-    wsend("restart","sys");
+    wsend("restart", "sys");
 })
 document.getElementById('return').addEventListener('click', (e) => { //
-    if(historyIndex == 0) return;
-    historyIndex -=1;
+    if (historyIndex == 0) return;
+    historyIndex -= 1;
     historyArr.pop();
     console.log(historyArr);
-    wsend("return","sys");
+    wsend("return", "sys");
 })
 
-document.getElementById('zenbo-choosen').addEventListener('click',(e)=>{
-  var clickMsg = (e.target.getAttribute('data-opnum'));
-  if (clickMsg == "stop-mic" || clickMsg == null || clickMsg == "zenbo-choosen") return;
-  wsend(clickMsg,"raw");
+document.getElementById('zenbo-choosen').addEventListener('click', (e) => {
+    var clickMsg = (e.target.getAttribute('data-opnum'));
+    if (clickMsg == "stop-mic" || clickMsg == null || clickMsg == "zenbo-choosen") return;
+    wsend(clickMsg, "raw");
 })
 
-function restoreHistory(arrIndex){ //will have no lastChosen
+function restoreHistory(arrIndex) { //will have no lastChosen
     init();
     var tmp = historyArr[arrIndex];
     insertServerMsg(tmp.Response, tmp.Metadata, tmp.Type);
-    var lastAns = '#zc'+arrIndex+tmp.Metadata.indexOf(historyArr[arrIndex+1].lastChosen);
-    $(lastAns).css("background-color","yellow");
+    var lastAns = '#zc' + arrIndex + tmp.Metadata.indexOf(historyArr[arrIndex + 1].lastChosen);
+    $(lastAns).css("background-color", "yellow");
 }
 
-document.getElementById('last').addEventListener('click',(e)=>{
+document.getElementById('last').addEventListener('click', (e) => {
     historyIndex -= 1;
-    if(historyIndex < 0) historyIndex = 0;
+    if (historyIndex < 0) historyIndex = 0;
     restoreHistory(historyIndex);
 })
-document.getElementById('next').addEventListener('click',(e)=>{
+document.getElementById('next').addEventListener('click', (e) => {
     historyIndex += 1;
-    if(historyIndex >= historyArr.length-1) historyIndex = historyArr.length-1;
+    if (historyIndex >= historyArr.length - 1) historyIndex = historyArr.length - 1;
     restoreHistory(historyIndex);
 })
 
-function changeState(nowState){
-    if(nowState){ //true: to server state
+function changeState(nowState) {
+    if (nowState) { //true: to server state
         $('#mic-animation').css("display", "none");
         $('#client-content').css("display", "none");
         $('#chat-p-img').css("display", "none");
         $('#stop-mic').css("display", "none");
         $('#speech').css("display", "inherit");
         $('#server-content').css("display", "inherit");
-    }else{ //false: to client state
+    } else { //false: to client state
         $('.choosen-btn').remove();
         $('#mic-animation').css("display", "inherit");
         $('#chat-p-img').css("display", "none");

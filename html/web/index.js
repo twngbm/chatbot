@@ -1,4 +1,6 @@
-var ws = new WebSocket("ws://140.116.72.235:8080");
+var ip = location.host;
+var wss = "ws://" + ip + ":8080";
+var ws = new WebSocket(wss);
 var time = Date($.now());
 var scro;
 var serverHistory = [];
@@ -50,17 +52,23 @@ function insertServerMsg(msg, chosen, type) {
         btn += "<button data-opnum=return id=cho-return></button><br>";
         res = ('<li id="p' + len + '">' + msg + '<br>' + btn + '</li>');
     } else if (type == 1) {
-        res += '<li id="p' + len + '"><img data-opnum="chat-p-img" src='+msg+'></li>'
+        var btn = "";
+        chosen.forEach(element => btn += "<button data-opnum=" + element + ">" + element + "</button><br>");
+        res += '<li id="p' + len + '"><img data-opnum="chat-p-img" src=' + msg + '><br>' + btn + '</li>'
     } else if (type == 2) {
         window.open(msg, "開啟新分頁");
     }
     serverHistory.push(res);
+    console.log("serverHistory PUSH server side");
+    console.log(serverHistory);
     $(res).appendTo($('#chatBlock'));
     updateScrollbar();
 }
 function insertClientMsg(msg, type) {
     serverHistory == null ? len = 0 : len = serverHistory.length;
     serverHistory.push('<li id="p' + len + '" class="right-msg">' + msg + '</li>');
+    console.log("serverHistory PUSH client side");
+    console.log(serverHistory);
     $('<li id=p' + len + ' class="right-msg">' + msg + '</li>').appendTo($('#chatBlock'));
     if (type != 0) wsend(msg, type);
     updateScrollbar();
@@ -102,9 +110,9 @@ document.getElementById('chatBlock').addEventListener('click', (e) => {
         return;
         //insertClientMsg(clickMsg,"sys");
     } else if (clickMsg == "chat-p-img") {
-        window.open((e.target.getAttribute('src')),"開啟新分頁");
+        window.open((e.target.getAttribute('src')), "開啟新分頁");
         return;
-    }else {
+    } else {
         insertClientMsg(clickMsg, "raw");
     }
 })
