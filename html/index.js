@@ -1,4 +1,4 @@
-var ws = new WebSocket("ws://140.116.72.235:8080");
+var ws = new WebSocket("ws://140.116.72.242:8080");
 var time = Date($.now());
 var scro;
 var serverHistory = [];
@@ -10,6 +10,9 @@ function init() {
     scro = $("#chat").mCustomScrollbar();
 }
 
+window.onfocus = function(){
+    updateScrollbar();
+}
 
 ws.onopen = function (event) {
     console.log("Open websocket");
@@ -22,7 +25,7 @@ ws.onerror = function (event) {
 }
 ws.onmessage = function (event) {
     msg = JSON.parse(event.data);
-    insertServerMsg(msg.Response, msg.Metadata, msg.Type);
+    insertServerMsg(msg.Response, msg.Metadata, msg.Type, msg.URL);
 }
 
 function wsend(msg, type) {
@@ -38,7 +41,7 @@ function updateScrollbar() {
     });
 }
 
-function insertServerMsg(msg, chosen, type) {
+function insertServerMsg(msg, chosen, type, URL) {
     var res = "";
     serverHistory == null ? len = 0 : len = serverHistory.length;
     if (type == 0 && chosen == null) {
@@ -52,7 +55,12 @@ function insertServerMsg(msg, chosen, type) {
     } else if (type == 1) {
         res += '<li id="p' + len + '"><img data-opnum="chat-p-img" src='+msg+'></li>'
     } else if (type == 2) {
-        window.open(msg, "開啟新分頁");
+        var btn = "";
+        chosen.forEach(element => btn += "<button data-opnum=" + element + ">" + element + "</button><br>");
+        btn += "<button data-opnum=restart id=cho-restart></button>";
+        btn += "<button data-opnum=return id=cho-return></button><br>";
+        res = ('<li id="p' + len + '">' + msg + '<br>' + btn + '</li>');
+        window.open(URL, "開啟新分頁");
     }
     serverHistory.push(res);
     $(res).appendTo($('#chatBlock'));
