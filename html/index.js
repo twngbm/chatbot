@@ -62,7 +62,7 @@ function insertServerMsg(msg, chosen, type, URL) {
         res = ('<li id="p' + len + '">' + msg + '<br>' + btn + '</li>');
         window.open(URL, "開啟新分頁");
     }
-    serverHistory.push(res);
+    if(res != "" ) serverHistory.push(res);
     $(res).appendTo($('#chatBlock'));
     updateScrollbar();
 }
@@ -135,5 +135,7 @@ function lastStep() {
     serverHistory.pop();
     $('#p' + (serverHistory.length - 1)).remove();
     serverHistory.pop();
+    console.log(serverHistory.length);
+    if(serverHistory.length == 1 )location.reload();
     wsend("return", "sys");
 }
