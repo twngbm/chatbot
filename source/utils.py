@@ -52,7 +52,7 @@ class LoaderUtils():
             ans = {"系統概述": ITsysItem["功能簡述"],
                    "業務單位": "業務單位/承辦人:{}<br>業務單位分機:{}".format(ITsysItem["業務單位"], ITsysItem["業務負責人分機"]),
                    "系統負責單位": "系統負責單位/承辦人:{}<br>系統負責單位分機:{}".format(ITsysItem["系統負責人"], ITsysItem["系統負責人分機"])}
-            self.solutionList["Keyword"][ITsys] = {"Checklist": ans}
+            #self.solutionList["Keyword"][ITsys] = {"Checklist": ans}
 
         logging.critical("Loading Question Table")
         with open(__PATH__+QUESTION, "r", encoding="utf-8-sig") as q:

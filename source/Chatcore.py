@@ -42,24 +42,28 @@ class Chatbot(object):
         elif User.userSay.Type == "raw":
             # Check if restart
             userIntent = self.IntentUtils.intentParser(
-                User.userSay.Message, self.data.question["SysRestartConfirm"]["Question"], True)
+                User.userSay.Message, self.data.question["SysRestartConfirm"]["Question"], noDFS=True)
             if userIntent != []:
                 User.restart()
                 return
+
             # Check if goto previous step
             userIntent = self.IntentUtils.intentParser(
-                User.userSay.Message, self.data.question["SysPrevious"]["Question"], True)
+                User.userSay.Message, self.data.question["SysPrevious"]["Question"], noDFS=True)
             if userIntent != []:
                 User.undoNode()
                 return
+
             # Check if inside function
             if User.inFunction:
                 User.updateFunction(User.userSay.Message)
                 return
 
+            # Check if user press other bubble's button
             if User.userSay.relatively != 0:
                 User.jump()
                 return
+
             candidate = User.currentFeature()
             userIntent = self.IntentUtils.intentParser(
                 User.userSay.Message, candidate)
@@ -67,9 +71,15 @@ class Chatbot(object):
             if len(userIntent) == 0:
                 if User.isRoot():
                     candidate = self.ChatUtils.getQuestion("rootUnbound")
+                    checklist = [self.ChatUtils.getQuestion(
+                        "SysRestartConfirm")]
+                else:
+                    candidate = candidate
+                    checklist = candidate + \
+                        [self.ChatUtils.getQuestion("SysRestartConfirm")]
                 response = self.ChatUtils.getQuestion(
                     User.currentFeatureName(), True).format(INPUT=User.userSay.Message, CANDIDATE=candidate)
-                checklist = [self.ChatUtils.getQuestion("SysRestartConfirm")]
+                User.updateNode(User.currentNode, User.userSay.Message)
                 User.botUpdate(response, checklist, User.userSay.Message)
                 return
 
@@ -80,6 +90,7 @@ class Chatbot(object):
                     "Unbounded").format(INPUT=User.userSay.Message)
                 checklist = userIntent + \
                     [self.ChatUtils.getQuestion("SysRestartConfirm")]
+                User.updateNode(User.currentNode, userIntent)
                 User.botUpdate(response, checklist, User.userSay.Message)
                 return
 
@@ -101,7 +112,11 @@ class Chatbot(object):
             # where we'll handle with next condition
             # We than return the string object to Client, Client will determind how to display.
             # User.intentLog[len(User.recursive)].append(VeryUserIntent)
-            User.botUpdate(nextNode, User.currentFeature(), intent)
+            User.updateNode(User.currentNode, intent)
+            response = self.ChatUtils.getQuestion("Checklist").format(
+                PATH=User.intentPath(), DESCRIPTION=User.checklistDescription())
+            User.botUpdate(nextNode, User.currentFeature(),
+                           intent, None, response)
             return
 
         elif "Reference" in nextNode:

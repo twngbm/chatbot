@@ -15,16 +15,17 @@ class User(object):
         self.FunctionUtils = FunctionUtils(self.data)
         self.restart()
 
-    def botUpdate(self, response,  metadate, lastChosen, Dtype=None):
+    def botUpdate(self, response,  metadate, lastChosen, Dtype=None, reference=None):
         self.botSay.Response = response
         if not Dtype:
             if ChatUtils.isURL(self.botSay.Response):
-                Dtype = 2
+                self.sendbackMessage = json.dumps(
+                    {"Response": reference, "Metadata": self.botSay.Metadata, "lastChosen": lastChosen, "Type": 2, "URL": self.botSay.Response}, ensure_ascii=False)
+                return
             elif ChatUtils.isIMG(self.botSay.Response):
                 Dtype = 1
             else:
                 Dtype = 0
-
         self.botSay.Metadata = metadate
         self.sendbackMessage = json.dumps(
             {"Response": self.botSay.Response, "Metadata": self.botSay.Metadata, "lastChosen": lastChosen, "Type": Dtype}, ensure_ascii=False)
@@ -43,10 +44,12 @@ class User(object):
             self.userSay.relatively = data["Relatively"]
         except:
             self.userSay.relatively = 0
+
         try:
             self.userSay.Message = data["Data"]
         except:
             raise ValueError
+
         if data["DataType"] in ["raw", "clicked", 1]:
             self.userSay.Type = "raw"
         else:
@@ -64,6 +67,7 @@ class User(object):
         feature = self.currentFeatureName()
         response = self.ChatUtils.getQuestion(feature)
         self.botUpdate(response, None, None)
+        logging.info(f"{self.userID} RESTART")
 
     def updateFunction(self, intent):
         if not self.inFunction:
@@ -107,9 +111,12 @@ class User(object):
     def updateNode(self, newNode, lastIntent):
         self.history.append(newNode)
         self.intentLog.append(lastIntent)
+        logging.info("History PUSH {}".format([[*x][0] for x in self.history]))
+        logging.info("intentLog PUSH{}".format(self.intentLog))
         self.currentNode = newNode
 
     def undoNode(self):
+        logging.info(f"{self.userID} UNDO")
         if self.inFunction:
             self.functionCounter -= 1
             if self.functionCounter <= -1:
@@ -130,6 +137,8 @@ class User(object):
             PATH=self.intentPath(), DESCRIPTION=self.checklistDescription())
         selectList = self.currentFeature()
         self.botUpdate(response, selectList, None, -1)
+        logging.info("History POP{}".format([[*x][0] for x in self.history]))
+        logging.info("intentLog POP{}".format(self.intentLog))
         return
 
     def jump(self):
@@ -154,7 +163,7 @@ class User(object):
         feature = [*self.currentNode[self.currentFeatureName()]]
         if "Description" in feature:
             feature.remove("Description")
-            feature += [self.ChatUtils.getQuestion("SysRestartConfirm")]
+            feature.append(self.ChatUtils.getQuestion("SysRestartConfirm"))
         return feature
 
     def nextNode(self, intent) -> dict:
