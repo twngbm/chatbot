@@ -25,7 +25,7 @@ function init() {
 
 
 ws.onopen = function (event) {
-    //wsend("地點","raw");
+    wsend("網路", "raw");
 }
 
 ws.onclose = function (event) {
@@ -36,10 +36,9 @@ ws.onerror = function (event) {
 }
 ws.onmessage = function (event) {
     msg = JSON.parse(event.data);
-    if (msg.Type != 2) historyArr.push(msg);
-    console.log(historyArr);
+    if (msg.Type != -1) historyArr.push(msg);
     historyIndex = historyArr.length - 1;
-    insertServerMsg(msg.Response, msg.Metadata, msg.Type);
+    insertServerMsg(msg.Response, msg.Metadata, msg.Type, msg.URL);
 }
 
 function wsend(msg, type) {
@@ -47,7 +46,7 @@ function wsend(msg, type) {
     ws.send(JSON.stringify(tmp));
 }
 
-function insertServerMsg(msg, choosen, type) {
+function insertServerMsg(msg, choosen, type, URL) {
     if (type == 0) {
         init();
         msg = (msg.replace("<b>", "\""));
@@ -66,10 +65,11 @@ function insertServerMsg(msg, choosen, type) {
         $('#chat-p-img').css("display", "inherit");
         $('#chat-p-img').attr('src') = msg;
         //$('<img src='+msg+'>').appendTo($('#chat-p'));
-        console.log(msg);
+        //console.log(msg);
     } else if (type == 2) {
-        window.open(msg, "開啟新分頁");
+        window.open(URL, "開啟新分頁");
     }
+    console.log(historyArr);
 }
 
 function insertClientMsg(msg, type) {
@@ -84,12 +84,13 @@ document.getElementById('restart').addEventListener('click', (e) => {
     historyIndex = 0;
     wsend("restart", "sys");
 })
-document.getElementById('return').addEventListener('click', (e) => { //
+document.getElementById('return').addEventListener('click', (e) => { //after return, the window won't change back to last step
     if (historyIndex == 0) return;
     historyIndex -= 1;
     historyArr.pop();
     console.log(historyArr);
     wsend("return", "sys");
+    restoreHistory(historyArr.length - 1);
 })
 
 document.getElementById('zenbo-choosen').addEventListener('click', (e) => {
@@ -100,13 +101,14 @@ document.getElementById('zenbo-choosen').addEventListener('click', (e) => {
 
 function restoreHistory(arrIndex) { //will have no lastChosen
     init();
+    console.log(historyArr);
     var tmp = historyArr[arrIndex];
     insertServerMsg(tmp.Response, tmp.Metadata, tmp.Type);
     var lastAns = '#zc' + arrIndex + tmp.Metadata.indexOf(historyArr[arrIndex + 1].lastChosen);
     $(lastAns).css("background-color", "yellow");
 }
 
-document.getElementById('last').addEventListener('click', (e) => {
+document.getElementById('last').addEventListener('click', (e) => { //zenbo
     historyIndex -= 1;
     if (historyIndex < 0) historyIndex = 0;
     restoreHistory(historyIndex);
