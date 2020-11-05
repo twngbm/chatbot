@@ -1,3 +1,9 @@
+if [ ! -d "./data" ] 
+then
+    wget -i "./reference/ckipdata.txt" -o data.zip
+    unzip data.zip
+fi
+
 docker build -t chatbot .
 docker stop Chatbot_Demo
 docker rm Chatbot_Demo
