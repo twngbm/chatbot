@@ -53,8 +53,11 @@ html, body{
 #chat {
     height: 100%;
     margin: 0px auto 0 auto;
-    //overflow: auto;
     border-radius: 0px 0px 5px 5px;
+    background: url("img/ncku1.png");
+    background-position: 47% 50%;
+    background-size: 345px 405px;
+    background-repeat: no-repeat;
 }
 #input {
     padding: 5px;

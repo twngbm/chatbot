@@ -25,7 +25,6 @@ function init() {
 
 
 ws.onopen = function (event) {
-    wsend("網路", "raw");
 }
 
 ws.onclose = function (event) {
