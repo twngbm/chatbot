@@ -6,6 +6,10 @@ html, body{
 }
 .container{
     height: inherit;
+    background-image: url("img/htmlbk.png");
+    background-repeat: no-repeat;
+    background-size: auto 100%;
+    background-position: center center;
 }
 
 .div-row-8{
@@ -58,10 +62,12 @@ html, body{
     background-position: 47% 50%;
     background-size: 345px 405px;
     background-repeat: no-repeat;
+    background-color: white;
 }
 #input {
     padding: 5px;
     margin: 5px auto 0 auto;
+    background-color: white;
 }
 #chat-ui-dialog {
     background: transparent;
@@ -158,6 +164,7 @@ ul.rounded-messages li.left-msg {
   background: #E3E2DF;
   animation-name: flyIn;
   animation-duration: 0.25s;
+  min-width: 150px !important;
 }
 
 ul.rounded-messages li:not(.right-msg)::before,
