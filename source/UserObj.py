@@ -69,7 +69,7 @@ class User(object):
         self.botUpdate(response, None, None)
         logging.info(f"{self.userID} RESTART")
 
-    def updateFunction(self, intent):
+    def updateFunction(self, intent, IntentUtils):
         if not self.inFunction:
             self.updateNode(
                 self.currentNode[self.currentFeatureName()][intent]["Function"], intent)
@@ -91,13 +91,14 @@ class User(object):
             functionArgs.append(args)
         try:
             response, checklist, unbound = getattr(
-                self.FunctionUtils, functionName)(functionArgs)
+                self.FunctionUtils, functionName)(functionArgs,  IntentUtils)
         except:
             raise NotImplementedError
 
         if unbound:
-            response = self.ChatUtils.getQuestion(
-                "Unbounded").format(INPUT=intent)
+            if response == None:
+                response = self.ChatUtils.getQuestion(
+                    "Unbounded").format(INPUT=intent)
             self.botUpdate(response, checklist, intent)
             self.functionCounter -= 1
             return
@@ -111,8 +112,6 @@ class User(object):
     def updateNode(self, newNode, lastIntent):
         self.history.append(newNode)
         self.intentLog.append(lastIntent)
-        logging.info("History PUSH {}".format([[*x][0] for x in self.history]))
-        logging.info("intentLog PUSH{}".format(self.intentLog))
         self.currentNode = newNode
 
     def undoNode(self):
@@ -137,8 +136,6 @@ class User(object):
             PATH=self.intentPath(), DESCRIPTION=self.checklistDescription())
         selectList = self.currentFeature()
         self.botUpdate(response, selectList, None, -1)
-        logging.info("History POP{}".format([[*x][0] for x in self.history]))
-        logging.info("intentLog POP{}".format(self.intentLog))
         return
 
     def jump(self):

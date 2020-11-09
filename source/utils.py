@@ -36,24 +36,51 @@ class LoaderUtils():
         with open(__PATH__+ITTABLE, "r", encoding="utf-8-sig") as csvfile:
             rows = csv.reader(csvfile)
             header = next(rows)
-            header[0] = "代號"
-            header[6] = "業務負責人分機"
-            header[8] = "系統負責人分機"
-            header[9] = "備註"
-            header = header[:10]
+            header[0] = "系統名稱"
+            header[1] = "功能簡述"
+            header[2] = "業務單位"
+            header[3] = "業務負責人"
+            header[4] = "業務負責人分機"
+            header[5] = "系統負責人"
+            header[6] = "系統負責人分機"
             ITinfotable = {}
             for row in rows:
-                ITinfotable[row[1]] = dict(zip(header, row))
-            ITinfotableKey = list(ITinfotable.keys())
-
+                ITinfotable[row[0]] = dict(zip(header, row))
+            ITinfotableKey = [*ITinfotable]
         self.encouragedDict = {x: 2 for x in encouragedList+ITinfotableKey}
-
+        self.ITTable_name = {}
+        self.ITTable_phone = {}
+        self.ITTable_phone_man = {}
         for ITsys, ITsysItem in ITinfotable.items():
-            ans = {"系統概述": ITsysItem["功能簡述"],
-                   "業務單位": "業務單位/承辦人:{}<br>業務單位分機:{}".format(ITsysItem["業務單位"], ITsysItem["業務負責人分機"]),
-                   "系統負責單位": "系統負責單位/承辦人:{}<br>系統負責單位分機:{}".format(ITsysItem["系統負責人"], ITsysItem["系統負責人分機"])}
-            #self.solutionList["Keyword"][ITsys] = {"Checklist": ans}
-
+            if ITsysItem["功能簡述"] != "":
+                ans = "系統名稱:<b>{}</b><br>\
+                       系統概述:<br>\
+                       {}<br>\
+                        業務單位/承辦人:{}/{}<br>\
+                        業務單位分機:{}<br>\
+                        系統負責人:{}<br>\
+                        系統負責人分機:{}".format(ITsys, ITsysItem["功能簡述"],
+                                           ITsysItem["業務單位"], ITsysItem["業務負責人"], ITsysItem["業務負責人分機"], ITsysItem["系統負責人"], ITsysItem["系統負責人分機"])
+            else:
+                ans = "系統名稱:<b>{}</b><br>\
+                       業務單位/承辦人:{}/{}<br>\
+                       業務單位分機:{}<br>\
+                       系統負責人:{}<br>\
+                       系統負責人分機:{}".format(ITsys,
+                                          ITsysItem["業務單位"], ITsysItem["業務負責人"], ITsysItem["業務負責人分機"], ITsysItem["系統負責人"], ITsysItem["系統負責人分機"])
+            self.ITTable_name[ITsys] = ans
+            try:
+                self.ITTable_phone[ITsysItem["業務負責人分機"]].append(ITsys)
+            except:
+                self.ITTable_phone[ITsysItem["業務負責人分機"]] = [ITsys]
+            try:
+                self.ITTable_phone[ITsysItem["系統負責人分機"]].append(ITsys)
+            except:
+                self.ITTable_phone[ITsysItem["系統負責人分機"]] = [ITsys]
+            self.ITTable_phone_man[ITsysItem["系統負責人分機"]] = ITsysItem["系統負責人"]
+            self.ITTable_phone_man[ITsysItem["業務負責人分機"]] = ITsysItem["業務負責人"]
+        self.ITTable_man_phone = {x: y for y,
+                                  x in self.ITTable_phone_man.items()}
         logging.critical("Loading Question Table")
         with open(__PATH__+QUESTION, "r", encoding="utf-8-sig") as q:
             temp = json.load(q)
@@ -107,7 +134,7 @@ class ChatUtils():
             r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
             r'(?::\d+)?'  # optional port
             r'(?:/?|[/?]\S+)$', re.IGNORECASE)
-        return re.match(regex, url) is not None
+        return re.match(regex, str(url)) is not None
 
     @staticmethod
     def isIMG(path: str) -> bool:
@@ -253,8 +280,39 @@ class FunctionUtils():
         return self.ChatUtils.getQuestion(feature), None, False
 
     def systemSearch(self, *args):
-        # TODO
-        return "0", None, False
+        IntentUtils = args[-1]
+        userSay = args[0][0]
+
+        # Find by system name
+        intent = IntentUtils.intentParser(userSay, [*self.data.ITTable_name])
+        if len(intent) == 1:
+            return self.data.ITTable_name[intent[0]], None, False
+        if len(intent) > 1:
+            return None, intent, True
+
+        # Find by system phone number
+        intent = IntentUtils.intentParser(userSay, [*self.data.ITTable_phone])
+        if len(intent) == 1:
+            sysSet = self.data.ITTable_phone[intent[0]]
+            if len(sysSet) == 1:
+                return self.data.ITTable_name[sysSet[0]], None, False
+            else:
+                msg = "分機負責人姓名:<b>{} 先生/小姐</b><br>該負責人負責系統如下:<br>".format(
+                    self.data.ITTable_phone_man[intent[0]])
+                return msg, list(set(sysSet)), True
+        intent = IntentUtils.intentParser(
+            userSay, [*self.data.ITTable_man_phone])
+        if len(intent) == 1:
+            sysSet = self.data.ITTable_phone[self.data.ITTable_man_phone[intent[0]]]
+            if len(sysSet) == 1:
+                return self.data.ITTable_name[sysSet[0]], None, False
+            else:
+                msg = "負責人姓名:<b>{} 先生/小姐</b>分機為<b>{}</b><br>該負責人負責系統如下:<br>".format(
+                    intent[0], self.data.ITTable_man_phone[intent[0]])
+                return msg, list(set(sysSet)), True
+        else:
+            return None, intent, True
+        return self.ChatUtils.getQuestion("phoneQD", True).format(INPUT=userSay), None, False
 
     def getWeather(self, *args):
         import requests

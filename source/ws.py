@@ -22,8 +22,6 @@ nest_asyncio.apply()
 
 
 def init():
-    global DATA
-    global Chatbot
 
     loglevel = os.getenv('LOG', "INFO")
     if loglevel == "DEBUG":
@@ -41,9 +39,10 @@ def init():
 
     formatter = '| %(levelname)s | %(asctime)s | %(process)d | %(message)s |'
     logging.basicConfig(level=LOG_LEVEL, format=formatter,
-                        datefmt="%Y-%m-%d %H:%M:%S")
+                        datefmt="%Y-%m-%d %H:%M:%S", handlers=[logging.FileHandler("chatbot.log", "a+", "utf-8")])
     logging.critical("Chatbot Core Initinal")
-
+    global DATA
+    global Chatbot
     DATA = LoaderUtils()
     Chatbot = Chatcore.Chatbot(DATA)
 

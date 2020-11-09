@@ -238,6 +238,17 @@
         }
     },
     {
+        "greeting": {
+            "Question": [
+                "您好",
+                "Hi"
+            ],
+            "Exception": [
+                "您的關鍵字{INPUT}無法搜尋到任何結果"
+            ]
+        }
+    },
+    {
         "default": {
             "Question": [
                 "<未定義>"

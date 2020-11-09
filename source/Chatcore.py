@@ -56,13 +56,19 @@ class Chatbot(object):
 
             # Check if inside function
             if User.inFunction:
-                User.updateFunction(User.userSay.Message)
+                User.updateFunction(User.userSay.Message, self.IntentUtils)
                 return
 
             # Check if user press other bubble's button
             if User.userSay.relatively != 0:
                 User.jump()
                 return
+
+            if User.userSay.Message in self.data.similarDict:
+                if self.data.similarDict[User.userSay.Message] == "問候":
+                    User.botUpdate(self.ChatUtils.getQuestion(
+                        "greeting"), None,  User.userSay.Message)
+                    return
 
             candidate = User.currentFeature()
             userIntent = self.IntentUtils.intentParser(
@@ -151,7 +157,7 @@ class Chatbot(object):
             return
 
         elif "Function" in nextNode:
-            User.updateFunction(intent)
+            User.updateFunction(intent, self.IntentUtils)
             return
 
         else:
