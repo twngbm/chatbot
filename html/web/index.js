@@ -1,5 +1,5 @@
 var ip = location.host;
-var wss = "ws://" + ip + ":8080";
+var wss = "ws://"+ ip +":8080";
 var ws = new WebSocket(wss);
 var time = Date($.now());
 var scro;
@@ -133,7 +133,10 @@ document.getElementById('sys_btn').addEventListener('click', (e) => {
         lastStep();
         return;
         //insertClientMsg(clickMsg, "sys");
-    }
+    } else if (clickMsg == "help"){
+		window.open("img/help.jpg","_blank");	
+		return;	
+	}
 })
 
 function lastStep() {
