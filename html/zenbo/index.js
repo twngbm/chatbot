@@ -1,5 +1,5 @@
 var ip = location.host;
-var wss = "ws://140.116.72.242:8080";
+var wss = "ws://"+ ip +":8080";
 var ws = new WebSocket(wss);
 var time = Date($.now());
 var ttt = 0;
