@@ -310,9 +310,9 @@ class FunctionUtils():
                 msg = "負責人姓名:<b>{} 先生/小姐</b>分機為<b>{}</b><br>該負責人負責系統如下:<br>".format(
                     intent[0], self.data.ITTable_man_phone[intent[0]])
                 return msg, list(set(sysSet)), True
-        else:
+        elif len(intent) > 1:
             return None, intent, True
-        return self.ChatUtils.getQuestion("phoneQD", True).format(INPUT=userSay), None, False
+        return self.ChatUtils.getQuestion("phoneQD", True).format(INPUT=userSay), [self.ChatUtils.getQuestion("SysRestartConfirm")], True
 
     def getWeather(self, *args):
         import requests
@@ -323,7 +323,7 @@ class FunctionUtils():
         response = requests.get(complete_url)
         x = response.json()
         y = x["main"]
-        current_temperature = y["temp"]
+        current_temperature = round(int(y["temp"])-273.15, 2)
         current_pressure = y["pressure"]
         current_humidiy = y["humidity"]
         z = x["weather"]
@@ -334,3 +334,25 @@ class FunctionUtils():
 
     def getLocation(self, *args):
         return "img/nckumap.jpg", None, False
+
+    def getDate(self, *args):
+        import datetime
+        now = datetime.datetime.now()
+        now = now.replace(tzinfo=datetime.timezone.utc)
+        now = now+datetime.timedelta(hours=UTC_OFFSET)
+        years = int(now.strftime("%Y"))-1911
+        month = now.strftime("%-m")
+        day = now.strftime("%-d")
+        weekday = ["日", "一", "二", "三", "四", "五", "六"]
+        weekday = weekday[int(now.strftime("%w"))]
+        hour = now.strftime("%-H")
+        minutes = now.strftime("%-M")
+        msg = "今天是民國{}年，{}月{}日<br>星期{}，{}點{}分".format(
+            years, month, day, weekday, hour, minutes)
+        return str(msg), None, False
+
+    def getPrincipal(self, *args):
+        return self.ChatUtils.getQuestion("getPrincipal"), None, False
+
+    def getDirector(self, *args):
+        return self.ChatUtils.getQuestion("getDirector"), None, False

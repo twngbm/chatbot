@@ -15,10 +15,6 @@ from ChatbotConfig import WEBSOCKETPORT
 from utils import ServerUtils, LoaderUtils
 
 nest_asyncio.apply()
-#import multiprocessing
-#multiprocessing.set_start_method('fork', True)
-
-# TODO：Multi processing websocket server
 
 
 def init():
@@ -47,28 +43,6 @@ def init():
     Chatbot = Chatcore.Chatbot(DATA)
 
     logging.critical("Chatbot Core Initinal Done")
-    """
-    logging.critical("Load Key_Cookie Pair")
-
-    try:
-        os.mkdir("./"+CLIENT_PATH)
-    except:
-        pass
-    try:
-        os.mkdir("./"+CLIENT_PATH+"/Cookies")
-    except:
-        pass
-
-    try:
-        with open("./"+CLIENT_PATH+"key_cookies.json", "r") as f:
-            key_cookie = json.load(f)
-        cookie_key = {y: x for x, y in key_cookie.items() if y != None}
-
-    except:
-        Path("./"+CLIENT_PATH+"key_cookies.json").touch()
-        key_cookie = {1000: None}
-        cookie_key = {}
-    """
 
 
 async def wsHandler(websocket, path):

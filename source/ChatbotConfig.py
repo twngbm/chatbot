@@ -4,7 +4,7 @@ try:
 except:
     pass
 WEBSOCKETPORT = 8080
-
+UTC_OFFSET = +8
 
 # Ckip Data Path
 # Relative Path to chatcore.py

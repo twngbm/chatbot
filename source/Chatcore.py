@@ -16,6 +16,7 @@ class Chatbot(object):
         self.data = data
         self.IntentUtils = utils.IntentUtils(self.data)
         self.ChatUtils = utils.ChatUtils(self.data)
+        self.FunctionUtils = utils.FunctionUtils(self.data)
 
     async def chat(self, User: UserObj.User):
 
@@ -40,41 +41,55 @@ class Chatbot(object):
         # Than we try to find out what user's intent.
 
         elif User.userSay.Type == "raw":
-            # Check if restart
-            userIntent = self.IntentUtils.intentParser(
-                User.userSay.Message, self.data.question["SysRestartConfirm"]["Question"], noDFS=True)
-            if userIntent != []:
-                User.restart()
-                return
 
-            # Check if goto previous step
-            userIntent = self.IntentUtils.intentParser(
-                User.userSay.Message, self.data.question["SysPrevious"]["Question"], noDFS=True)
-            if userIntent != []:
-                User.undoNode()
-                return
-
-            # Check if inside function
-            if User.inFunction:
-                User.updateFunction(User.userSay.Message, self.IntentUtils)
-                return
-
-            # Check if user press other bubble's button
-            if User.userSay.relatively != 0:
-                User.jump()
-                return
-
+            # Check if greeting
             if User.userSay.Message in self.data.similarDict:
                 if self.data.similarDict[User.userSay.Message] == "問候":
                     User.botUpdate(self.ChatUtils.getQuestion(
                         "greeting"), None,  User.userSay.Message)
                     return
 
+            # Check if inside function
+            if User.inFunction:
+                User.updateFunction(User.userSay.Message, self.IntentUtils)
+                if not User.inFunction:
+                    temp = User.userSay.raw
+                    User.restart()
+                    User.userUpdate(temp)
+                    await self.chat(User)
+                return
+
             candidate = User.currentFeature()
             userIntent = self.IntentUtils.intentParser(
                 User.userSay.Message, candidate)
+
             logging.info(f"Guess Intent: {userIntent}")
             if len(userIntent) == 0:
+                # Check if restart
+                userIntent = self.IntentUtils.intentParser(
+                    User.userSay.Message, self.data.question["SysRestartConfirm"]["Question"], noDFS=True)
+                if userIntent != []:
+                    User.restart()
+                    return
+                if User.isLeaf():
+                    temp = User.userSay.raw
+                    User.restart()
+                    User.userUpdate(temp)
+                    await self.chat(User)
+                    return
+
+                # Check if goto previous step
+                userIntent = self.IntentUtils.intentParser(
+                    User.userSay.Message, self.data.question["SysPrevious"]["Question"], noDFS=True)
+                if userIntent != []:
+                    User.undoNode()
+                    return
+
+                # Check if user press other bubble's button
+                # if User.userSay.relatively != 0:
+                #    User.jump()
+                #    return
+
                 if User.isRoot():
                     candidate = self.ChatUtils.getQuestion("rootUnbound")
                     checklist = [self.ChatUtils.getQuestion(
@@ -96,7 +111,7 @@ class Chatbot(object):
                     "Unbounded").format(INPUT=User.userSay.Message)
                 checklist = userIntent + \
                     [self.ChatUtils.getQuestion("SysRestartConfirm")]
-                User.updateNode(User.currentNode, userIntent)
+                User.updateNode(User.currentNode, User.userSay.Message)
                 User.botUpdate(response, checklist, User.userSay.Message)
                 return
 
@@ -153,7 +168,8 @@ class Chatbot(object):
             User.updateNode(nextNode, intent)
             response = self.ChatUtils.getQuestion("Checklist").format(
                 PATH=User.intentPath(), DESCRIPTION=User.checklistDescription())
-            User.botUpdate(response, User.currentFeature(), intent)
+            User.botUpdate(response, User.currentFeature() +
+                           [self.ChatUtils.getQuestion("SysRestartConfirm")], intent)
             return
 
         elif "Function" in nextNode:

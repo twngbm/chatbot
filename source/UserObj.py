@@ -32,6 +32,7 @@ class User(object):
         return
 
     def userUpdate(self, inputData: str):
+        self.userSay.raw = inputData
         try:
             data = json.loads(inputData)
         except:
@@ -76,7 +77,7 @@ class User(object):
         self.inFunction = True
         self.functionCounter += 1
         if self.functionCounter >= len(self.currentNode):
-            self.restart()
+            self.inFunction = False
             return
 
         currentFunction = copy.deepcopy(self.currentNode[self.functionCounter])
@@ -160,7 +161,7 @@ class User(object):
         feature = [*self.currentNode[self.currentFeatureName()]]
         if "Description" in feature:
             feature.remove("Description")
-            feature.append(self.ChatUtils.getQuestion("SysRestartConfirm"))
+            # return feature+[self.ChatUtils.getQuestion("SysRestartConfirm")]
         return feature
 
     def nextNode(self, intent) -> dict:
@@ -184,6 +185,9 @@ class User(object):
     def isRoot(self) -> bool:
         return self.currentFeatureName() is [*self.data.solutionList][0]
 
+    def isLeaf(self) -> bool:
+        return "Checklist" in self.currentNode
+
 
 class botSay(object):
     def __init__(self):
@@ -193,6 +197,7 @@ class botSay(object):
 
 class userSay(object):
     def __init__(self):
+        self.raw = None
         self.Type = None
         self.Message = None
         self.relatively = None

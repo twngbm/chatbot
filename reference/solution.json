@@ -1,5 +1,16 @@
 {
     "Keyword": {
+        "無線": {
+            "Checklist": {
+                "Description": "請使用成功入口帳號密碼，選取無線網路名稱NCKU-WLAN-802.1X並登入",
+                "更多": {
+                    "Reference": [
+                        "網路",
+                        "無線"
+                    ]
+                }
+            }
+        },
         "moodle": {
             "moodleQD": {
                 "登入問題": {
@@ -16,7 +27,7 @@
                 "使用說明": {
                     "Checklist": {
                         "Description": "請參考以下網頁的說明",
-                        "網頁": "http://moodle.ncku.edu.tw/"
+                        "網頁": "http://moodle.ncku.edu.tw/mod/forum/view.php?id=64"
                     }
                 }
             }
@@ -39,23 +50,23 @@
                     "Location": {
                         "宿舍": {
                             "Checklist": {
-                                "Description": "請檢查以下設定是否正常",
-                                "請確認是否已註冊。": "http://dorm.cc.ncku.edu.tw/#_Q1",
-                                "請檢察是否超流量。": "http://dorm.cc.ncku.edu.tw/#_Toc481691794",
-                                "請檢察是否設定DHCP。": "http://dorm.cc.ncku.edu.tw/#_Q10",
-                                "請檢查網路線狀態。": "http://dorm.cc.ncku.edu.tw/#_Q1"
+                                "Description": "每個學期與寒暑假之初，住宿生必須進行新使用者登錄才能使用宿舍網路。<br>請將個人電腦上的IP及DNS伺服器設定為自動取得。<br>下載速限為10Mbps；每24小時流量為8GB(含上、下載)，超過流量會限制網路速度。",
+                                "新使用者登錄": "http://dorm.cc.ncku.edu.tw/",
+                                "超流量檢查": "http://dorm.cc.ncku.edu.tw/",
+                                "設定DHCP": "http://dorm.cc.ncku.edu.tw/",
+                                "故障申告": "http://dorm.cc.ncku.edu.tw/"
                             }
                         },
                         "系館": {
                             "Checklist": {
-                                "Description": "請參考以下之說明",
-                                "請聯絡貴系網管進行處理": "各系網管負責人表格"
+                                "Description": "請先聯絡貴系網管人員",
+                                "成大教職員名錄查詢系統": "https://apps.pers.ncku.edu.tw/empqry/"
                             }
                         },
                         "行政單位": {
                             "Checklist": {
-                                "Description": "請參考以下之說明",
-                                "請聯絡貴單位網管進行處理": "各單位網管負責人表格"
+                                "Description": "請先連絡貴單位網管人員",
+                                "成大教職員名錄查詢系統": "https://apps.pers.ncku.edu.tw/empqry/"
                             }
                         }
                     }
@@ -92,15 +103,18 @@
         },
         "授權軟體": {
             "Checklist": {
-                "Description": "請檢查以下設定是否正確",
-                "如您在校外進行認證，請使用VPN連線": {
+                "Description": "1. 授權軟體下載網頁(http://www.cc.ncku.edu.tw/download/)請使用成功入口帳號密碼登入。<br>2. 如在校外進行認證，請使用VPN連線。<br>3. 認證檔案請以系統管理員身分執行。<br>4. 認證時請確認電腦時間設定正確。<br>5. 請確認電腦上欲安裝與認證之軟體版本為本校提供且校外版本已移除。",
+                "VPN說明": {
                     "Reference": [
                         "VPN"
                     ]
                 },
-                "認證檔案請以系統管理員身分執行": "http://www.cc.ncku.edu.tw/download/qa.php",
-                "認證時請確認電腦時間設定正確": "http://www.cc.ncku.edu.tw/download/qa.php",
-                "請確認電腦上欲安裝與認證之軟體版本為本校提供，且未認證之校外版本軟體已移除": "http://www.cc.ncku.edu.tw/download/qa.php"
+                "帳號密碼問題": {
+                    "Reference": [
+                        "成功入口"
+                    ]
+                },
+                "安裝認證常見問題": "http://www.cc.ncku.edu.tw/download/qa.php"
             }
         },
         "VPN": {
@@ -108,10 +122,9 @@
                 "帳號與登入": {
                     "Checklist": {
                         "Description": "請使用成功入口帳號與密碼登入",
-                        "如忘記成功入口帳密請參考": {
+                        "帳號密碼問題": {
                             "Reference": [
-                                "成功入口",
-                                "忘記密碼"
+                                "成功入口"
                             ]
                         }
                     }
@@ -172,7 +185,7 @@
                 },
                 "預設密碼無法登入": {
                     "Checklist": {
-                        "Description": "請直播61045賴先生，由專人為您服務"
+                        "Description": "預設密碼為:<br>1. 本籍生：身分證後四碼+生日月日四碼。<br>2. 外籍生或交換生：學號後四碼+生日月日四碼。<br>3. 教職員：身分證後四碼+生日月日四碼。<br>由於資安問題，請電洽<br><b>06-2757575轉分機61045，賴先生</b>。<br>由專人為您服務"
                     }
                 }
             }
@@ -575,7 +588,7 @@
         },
         "防疫系統": {
             "Checklist": {
-                "Description": "請直撥分機50340衛保組"
+                "Description": "請電洽<br><b>06-2757575分機50340，衛保組</b>"
             }
         },
         "Gsuite": {
@@ -695,12 +708,28 @@
         "地點": {
             "Function": [
                 [
-                    "getMessage",
-                    "whereis"
-                ],
+                    "getLocation"
+                ]
+            ]
+        },
+        "日期": {
+            "Function": [
                 [
-                    "getLocation",
-                    "$INPUT"
+                    "getDate"
+                ]
+            ]
+        },
+        "校長": {
+            "Function": [
+                [
+                    "getPrincipal"
+                ]
+            ]
+        },
+        "主任": {
+            "Function": [
+                [
+                    "getDirector"
                 ]
             ]
         }

@@ -2,100 +2,84 @@
     {
         "Keyword": {
             "Question": [
-                "請問有什麼問題?"
+                "請問有什麼問題?",
+                "請問有什麼可以幫助的?",
+                "請問想要知道什麼系統的資訊?"
             ],
             "Exception": [
-                "您的輸入<b>{INPUT}</b>無法對應至<br>{CANDIDATE}。<br>請重新輸入或重新開始問答流程"
+                "您的輸入<b>{INPUT}</b>無法對應至<br>{CANDIDATE}。<br>請重新輸入或<b>點選下方按鈕重新開始問答流程</b>。"
             ]
         }
     },
     {
         "ConnectionType": {
             "Question": [
-                "請問您目前使用的網路類型?"
+                "請問您目前使用的網路是有線網路還是無線網路?"
             ],
             "Exception": [
-                "您的輸入<b>{INPUT}</b>無法對應至<br>{CANDIDATE}。<br>請重新輸入或重新開始問答流程"
+                "您的輸入<b>{INPUT}</b>無法對應至<br>{CANDIDATE}。<br>請重新輸入或<b>點選下方按鈕重新開始問答流程</b>。"
             ]
         }
     },
     {
         "Location": {
             "Question": [
-                "請輸入地點"
+                "請問您目前使用網路的地點是?"
             ],
             "Exception": [
-                "您的輸入<b>{INPUT}</b>無法對應至<br>{CANDIDATE}。<br>請重新輸入或重新開始問答流程"
+                "您的輸入<b>{INPUT}</b>無法對應至<br>{CANDIDATE}。<br>請重新輸入或<b>點選下方按鈕重新開始問答流程</b>。"
             ]
         }
     },
     {
         "UserDomain": {
             "Question": [
-                "請問您的身分為?"
+                "請問您的身分為以下何者?",
+                "請問您是?"
             ],
             "Exception": [
-                "您的輸入<b>{INPUT}</b>無法對應至<br>{CANDIDATE}。<br>請重新輸入或重新開始問答流程"
-            ]
-        }
-    },
-    {
-        "isSolved": {
-            "Question": [
-                "<br>請問問題是否有解決?"
-            ],
-            "Exception": [
-                "您的輸入<b>{INPUT}</b>無法對應至<br>{CANDIDATE}。<br>請重新輸入或重新開始問答流程"
-            ]
-        }
-    },
-    {
-        "EndMessage": {
-            "Question": [
-                "感謝使用，如問題尚無解決請聯絡計網中心61010<br>請問有其他問題嗎?"
-            ],
-            "Exception": [
-                ""
+                "您的輸入<b>{INPUT}</b>無法對應至<br>{CANDIDATE}。<br>請重新輸入或<b>點選下方按鈕重新開始問答流程</b>。"
             ]
         }
     },
     {
         "VPNQD": {
             "Question": [
-                "請問在VPN[安裝使用|登入]上哪一個部分的問題?"
+                "請問想要詢問VPN中哪一個方面的資訊?"
             ],
             "Exception": [
-                "您的輸入<b>{INPUT}</b>無法對應至<br>{CANDIDATE}。<br>請重新輸入或重新開始問答流程"
+                "您的輸入<b>{INPUT}</b>無法對應至<br>{CANDIDATE}。<br>請重新輸入或<b>點選下方按鈕重新開始問答流程</b>。"
             ]
         }
     },
     {
         "inckuQD": {
             "Question": [
-                "請問在成功入口使用上有什麼問題?"
+                "成功入口(i.ncku.edu.tw)登入帳號為:<br>1. 學生為學號。<br>2. 教職員工為員工證號。<br>請問在使用成功入口帳號密碼上有什麼問題?"
             ],
             "Exception": [
-                "您的輸入<b>{INPUT}</b>無法對應至<br>{CANDIDATE}。<br>請重新輸入或重新開始問答流程"
+                "您的輸入<b>{INPUT}</b>無法對應至<br>{CANDIDATE}。<br>請重新輸入或<b>點選下方按鈕重新開始問答流程</b>。"
             ]
         }
     },
     {
         "MailUserID": {
             "Question": [
-                "請問您的身分為?"
+                "請問您的身分為?",
+                "請問您是?"
             ],
             "Exception": [
-                "您的輸入<b>{INPUT}</b>無法對應至<br>{CANDIDATE}。<br>請重新輸入或重新開始問答流程"
+                "您的輸入<b>{INPUT}</b>無法對應至<br>{CANDIDATE}。<br>請重新輸入或<b>點選下方按鈕重新開始問答流程</b>。"
             ]
         }
     },
     {
         "staff_mail_type": {
             "Question": [
-                "請問您使用的信箱為何?"
+                "請問您目前使用的信箱為?"
             ],
             "Exception": [
-                "您的輸入<b>{INPUT}</b>無法對應至<br>{CANDIDATE}。<br>請重新輸入或重新開始問答流程"
+                "您的輸入<b>{INPUT}</b>無法對應至<br>{CANDIDATE}。<br>請重新輸入或<b>點選下方按鈕重新開始問答流程</b>。"
             ]
         }
     },
@@ -105,17 +89,17 @@
                 "請問您使用的信箱為何?"
             ],
             "Exception": [
-                "您的輸入<b>{INPUT}</b>無法對應至<br>{CANDIDATE}。<br>請重新輸入或重新開始問答流程"
+                "您的輸入<b>{INPUT}</b>無法對應至<br>{CANDIDATE}。<br>請重新輸入或<b>點選下方按鈕重新開始問答流程</b>。"
             ]
         }
     },
     {
         "mail_qd": {
             "Question": [
-                "請問您的問題為何?"
+                "請問您的問題種類為下方何類?"
             ],
             "Exception": [
-                "您的輸入<b>{INPUT}</b>無法對應至<br>{CANDIDATE}。<br>請重新輸入或重新開始問答流程"
+                "您的輸入<b>{INPUT}</b>無法對應至<br>{CANDIDATE}。<br>請重新輸入或<b>點選下方按鈕重新開始問答流程</b>。"
             ]
         }
     },
@@ -125,58 +109,44 @@
                 "您的關鍵字<b>{INPUT}</b>對應到以下系統，請選擇:<br>"
             ],
             "Exception": [
-                "您的輸入<b>{INPUT}</b>無法對應至<br>{CANDIDATE}。<br>請重新輸入或重新開始問答流程"
+                "您的輸入<b>{INPUT}</b>無法對應至<br>{CANDIDATE}。<br>請重新輸入或<b>點選下方按鈕重新開始問答流程</b>。"
             ]
         }
     },
     {
         "OSversion": {
             "Question": [
-                "請輸入您的作業系統或裝置"
+                "請輸入您的作業系統名稱"
             ],
             "Exception": [
-                "您的輸入<b>{INPUT}</b>無法對應至<br>{CANDIDATE}。<br>請重新輸入或重新開始問答流程"
+                "您的輸入<b>{INPUT}</b>無法對應至<br>{CANDIDATE}。<br>請重新輸入或<b>點選下方按鈕重新開始問答流程</b>。"
             ]
         }
     },
     {
         "Checklist": {
             "Question": [
-                "<b>{PATH}</b>之說明如下:<br>{DESCRIPTION}"
+                "<b>{PATH}</b><br>說明:<br>{DESCRIPTION}"
             ],
             "Exception": [
-                "您的輸入<b>{INPUT}</b>無法對應至<br>{CANDIDATE}。<br>請重新輸入或重新開始問答流程"
-            ]
-        }
-    },
-    {
-        "InputError": {
-            "Question": [
-                "請勿自行修改輸入，請點選以下選項<br>"
-            ],
-            "Exception": [
-                "您的輸入<b>{INPUT}</b>無法對應至<br>{CANDIDATE}。<br>請重新輸入或重新開始問答流程"
+                "您的輸入<b>{INPUT}</b>無法對應至<br>{CANDIDATE}。<br>請重新輸入或<b>點選下方按鈕重新開始問答流程</b>。"
             ]
         }
     },
     {
         "moodleQD": {
             "Question": [
-                "請問是以下哪一個問題？"
+                "請問是在moodle使用上的哪一個問題?"
             ],
             "Exception": [
-                "您的輸入<b>{INPUT}</b>無法對應至<br>{CANDIDATE}。<br>請重新輸入或重新開始問答流程"
+                "您的輸入<b>{INPUT}</b>無法對應至<br>{CANDIDATE}。<br>請重新輸入或<b>點選下方按鈕重新開始問答流程</b>。"
             ]
         }
     },
     {
         "SysRestartConfirm": {
             "Question": [
-                "重新開始對話",
-                "重新開始",
-                "重來",
-                "重頭",
-                "重新"
+                "重新開始對話"
             ],
             "Exception": [
                 "無法判斷問題，請重新選擇"
@@ -186,30 +156,21 @@
     {
         "GSID": {
             "Question": [
-                "請問您的身分?"
+                "請問您的身分?",
+                "請問您是?"
             ],
             "Exception": [
-                "您的輸入<b>{INPUT}</b>無法對應至<br>{CANDIDATE}。<br>請重新輸入或重新開始問答流程"
+                "您的輸入<b>{INPUT}</b>無法對應至<br>{CANDIDATE}。<br>請重新輸入或<b>點選下方按鈕重新開始問答流程</b>。"
             ]
         }
     },
     {
         "phoneQD": {
             "Question": [
-                "請輸入系統名稱，分機，或是承辦人名字"
+                "請輸入系統名稱，分機號碼，或是承辦人姓名"
             ],
             "Exception": [
-                "您的關鍵字{INPUT}無法搜尋到任何結果"
-            ]
-        }
-    },
-    {
-        "whereis": {
-            "Question": [
-                "請輸入地點"
-            ],
-            "Exception": [
-                "您的關鍵字{INPUT}無法搜尋到任何結果"
+                "您的關鍵字{INPUT}無法搜尋到任何結果。<br>請重新輸入或<b>點選下方按鈕重新開始問答流程</b>。"
             ]
         }
     },
@@ -219,7 +180,7 @@
                 "內部已知之系統名稱"
             ],
             "Exception": [
-                "您的關鍵字{INPUT}無法搜尋到任何結果"
+                "您的關鍵字{INPUT}無法搜尋到任何結果。<br>請重新輸入或<b>點選下方按鈕重新開始問答流程</b>。"
             ]
         }
     },
@@ -233,7 +194,7 @@
                 "返回"
             ],
             "Exception": [
-                "您的關鍵字{INPUT}無法搜尋到任何結果"
+                "您的關鍵字{INPUT}無法搜尋到任何結果。<br>請重新輸入或<b>點選下方按鈕重新開始問答流程</b>。"
             ]
         }
     },
@@ -241,10 +202,31 @@
         "greeting": {
             "Question": [
                 "您好",
-                "Hi"
+                "Hi",
+                "午安"
             ],
             "Exception": [
                 "您的關鍵字{INPUT}無法搜尋到任何結果"
+            ]
+        }
+    },
+    {
+        "getPrincipal": {
+            "Question": [
+                "本校校長為<br>蘇慧貞 特聘教授"
+            ],
+            "Exception": [
+                "您的關鍵字{INPUT}無法搜尋到任何結果。<br>請重新輸入或<b>點選下方按鈕重新開始問答流程</b>。"
+            ]
+        }
+    },
+    {
+        "getDirector": {
+            "Question": [
+                "本中心主任為<br>詹寶珠　特聘教授"
+            ],
+            "Exception": [
+                "您的關鍵字{INPUT}無法搜尋到任何結果。<br>請重新輸入或<b>點選下方按鈕重新開始問答流程</b>。"
             ]
         }
     },
