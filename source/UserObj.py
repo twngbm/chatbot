@@ -92,7 +92,7 @@ class User(object):
             functionArgs.append(args)
         try:
             response, checklist, unbound = getattr(
-                self.FunctionUtils, functionName)(functionArgs,  IntentUtils)
+                self.FunctionUtils, functionName)(functionArgs,  self, IntentUtils)
         except:
             raise NotImplementedError
 
