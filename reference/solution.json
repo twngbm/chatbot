@@ -732,6 +732,41 @@
                     "getDirector"
                 ]
             ]
+        },
+        "名字": {
+            "Function": [
+                [
+                    "getName"
+                ]
+            ]
+        },
+        "專長": {
+            "Function": [
+                [
+                    "getS"
+                ]
+            ]
+        },
+        "IP": {
+            "Function": [
+                [
+                    "getIP"
+                ]
+            ]
+        },
+        "性別": {
+            "Function": [
+                [
+                    "getSex"
+                ]
+            ]
+        },
+        "幾歲": {
+            "Function": [
+                [
+                    "getAge"
+                ]
+            ]
         }
     }
 }

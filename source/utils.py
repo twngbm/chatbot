@@ -356,3 +356,20 @@ class FunctionUtils():
 
     def getDirector(self, *args):
         return self.ChatUtils.getQuestion("getDirector"), None, False
+
+    def getName(self, *args):
+        return "我的名字叫Chatbot", None, False
+
+    def getS(self, *args):
+        return "我可以負責解決計算機與網路中心的問題", None, False
+
+    def getIP(self, *args):
+        user = args[-2]
+        ip = user.userID.split(":")[0]
+        return "您的IP為"+str(ip), None, False
+
+    def getSex(self, *args):
+        return "我是男的", None, False
+
+    def getAge(self, *args):
+        return "我年紀是3歲", None, False

@@ -1,6 +1,7 @@
 if [ ! -d "./data" ] 
 then
-    wget -i "./reference/ckipdata.txt" -o data.zip
+    echo "File not found, downloading."
+    wget -i "./reference/ckipdata.txt" -o data.zip 2>&1
     unzip data.zip
 fi
 

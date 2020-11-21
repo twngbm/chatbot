@@ -33,7 +33,7 @@ CKIP_UNWANTED = ["DE", "D", "Nh", "Cbb", "Caa", "Cab",
 try:
     OPENWEATHER_APIKEY
 except:
-    OPENWEATHER_APIKEY = "https://openweathermap.org/ api key here"
+    OPENWEATHER_APIKEY = "OPENWEATHER API KEY HERE"
 try:
     GOOGLE_PLACES_API_KEY
 except:
