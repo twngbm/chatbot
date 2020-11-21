@@ -9,9 +9,9 @@ from pathlib import Path
 import nest_asyncio
 import websockets
 import websockets.handshake
-
+from ChatbotConfig import *
 import Chatcore
-from ChatbotConfig import WEBSOCKETPORT
+
 from utils import ServerUtils, LoaderUtils
 
 nest_asyncio.apply()
@@ -43,6 +43,12 @@ def init():
     Chatbot = Chatcore.Chatbot(DATA)
 
     logging.critical("Chatbot Core Initinal Done")
+    if OPENWEATHER_APIKEY == None:
+        logging.error(
+            "Open Weather API key missing. Weather Function will not work.\n\
+             Please refer to https://openweathermap.org/ for an API key.\n\
+             And setup environment variable:\n\
+             \t OPENWEATHER_APIKEY=<api_key>\n")
 
 
 async def wsHandler(websocket, path):
@@ -91,6 +97,7 @@ if __name__ == "__main__":
     signal.signal(signal.SIGTERM, handle_sigterm)
 
     init()
+
     logging.critical("Web Socket Server Start")
     wsserver = websockets.serve(wsHandler, "0.0.0.0", WEBSOCKETPORT)
     loop = asyncio.get_event_loop()

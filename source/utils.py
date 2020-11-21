@@ -316,7 +316,10 @@ class FunctionUtils():
 
     def getWeather(self, *args):
         import requests
-        api_key = OPENWEATHER_APIKEY
+        try:
+            api_key = OPENWEATHER_APIKEY
+        except:
+            return "ERROR:NO OPEN WEATHER API KEY", None, False
         base_url = "http://api.openweathermap.org/data/2.5/weather?"
         city_name = "Tainan"
         complete_url = base_url + "appid=" + api_key + "&q=" + city_name

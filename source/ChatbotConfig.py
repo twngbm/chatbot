@@ -1,15 +1,11 @@
+import os
 # Server Setup
-try:
-    from realKey import *
-except:
-    pass
 WEBSOCKETPORT = 8080
 UTC_OFFSET = +8
 
 # Ckip Data Path
 # Relative Path to chatcore.py
 CKIPDATA = "../data/"
-
 # Other File Path
 # Relative Path to chatcore.py
 ITTABLE = "../reference/ITPrincipal.csv"
@@ -30,11 +26,5 @@ CKIP_UNWANTED = ["DE", "D", "Nh", "Cbb", "Caa", "Cab",
                  "Cba", "Da", "Dfa", "Dfb", "Di", "Dk", "DM", "I", "Nd"]
 
 # Other Supported (OpenWeather AIP Key...)
-try:
-    OPENWEATHER_APIKEY
-except:
-    OPENWEATHER_APIKEY = "OPENWEATHER API KEY HERE"
-try:
-    GOOGLE_PLACES_API_KEY
-except:
-    GOOGLE_PLACES_API_KEY = "GOOGLE API KEY HERE"
+
+OPENWEATHER_APIKEY = os.getenv("OPENWEATHER_APIKEY")
