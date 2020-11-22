@@ -21,9 +21,11 @@ title: 交接文件
 
 ## UI Description
 1. [Web Version](https://github.com/twngbm/chatbot/blob/master/doc/chatbot%E4%BD%BF%E7%94%A8%E8%AA%AA%E6%98%8E.pdf)
+
     ![](https://i.imgur.com/8RhuR9x.png)
 
 2. [Zenbo Version](https://github.com/twngbm/chatbot/blob/master/doc/zenbo%E4%BD%BF%E7%94%A8%E8%AA%AA%E6%98%8E.pdf)
+
    ![](https://i.imgur.com/DJmqmy5.jpg)
 
 
@@ -60,7 +62,7 @@ Choose one method described below.
     ```
     $ chomd +x run.sh
     ```
-4. Build and run. ++**Root needed.**++
+4. Build and run. ++**Root privilege needed.**++
     ```
     $ sudo ./run.sh OPENWEATHER_APIKEY=<Open weather API key>
     ```
@@ -68,7 +70,7 @@ Choose one method described below.
 ### 2. Run Pre-Build Image
 1. Pull docker image.
     ```
-    $ docker pull
+    $ docker pull twngbm/chatbot
     ```
     Or download docker image from **[HERE](https://drive.google.com/file/d/17IP4sefZkIF7e1rtxWolht8c7OmAugFi/view?usp=sharing)** and load the image.
     ```
@@ -113,6 +115,22 @@ Python Requirements List:
     -  **ws.py**:Handle program initialize and websocket loop for websocket connection. This file is the python program entrypoint of all.
 - **Dockerfile**: Docker file for building docker image.
 - **run.sh**: Helper file to build and run this project.
-### Program
+### Design
+#### Archicture
+![](https://i.imgur.com/xhtaIn4.png)
+#### State
+![](https://i.imgur.com/3EkPk7G.png)
+#### Workflow
+1. Main Flow
+
+![](https://i.imgur.com/UFuGRPc.png)
+
+2. Create Connection
+
+![](https://i.imgur.com/IJCRcZH.png)
+
+3. State Change
+
+![](https://i.imgur.com/ATiJz5y.png)
 
 TODO:json editor, last step unsolved saver
