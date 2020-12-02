@@ -33,17 +33,17 @@ title: 交接文件
 ## Requirement
 :::warning
 1. Linux OS, which [can install docker engine](https://docs.docker.com/engine/install/). Tested on **Ubuntu 18.04**, other linux distribution may also work.
-2. Docker Installed. Test on Docker version 19.03.8, other version may also work.
-3. Allow port 80 and port 8080 on firewall.
-4. [Open weather API key](https://openweathermap.org/api).
-5. Root privilege needed.
-6. The following command will work fine on ubuntu 18.04 with all requirement installed for build and run.
+2. **Docker Installed.** Test on Docker version 19.03.8, other version may also work.
     ```
     $ sudo apt update && sudo apt install docker.io
     ```
+4. Allow port 80 and port 8080 on firewall.
+5. [Open weather API key](https://openweathermap.org/api).
+
+    
 :::
 ## Installation
-Choose one method described below.
+Choose one of the method described below.
 ### 1. Build From Source
 1. Get Source From **[Here](https://github.com/twngbm/chatbot)**
     ```
